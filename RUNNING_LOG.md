@@ -336,9 +336,93 @@ calls, no change to Step 2's saved data).
 **Step 4 QA gate: passed, go-ahead given.** Committed and pushed
 (`367f8ae`, "Step 4: live match-status filter with manual-count self-check").
 
-**What's left for next session:** Step 5 (primary-emotion detection, two independent
-methods), lean mode. Requires confirming scope with Felipe before making any calls (does
-extending the Step 1 prompt mean re-running the model on the same reviews, a fresh batch,
-or a second separate call per review), confirming whether the LLM's emotion label set is
-constrained to the 8 NRC labels or free-text, and confirming the NRC lexicon source/
-license before pulling it in.
+---
+
+## Session 5
+
+**Steps worked on:** Step 5 (primary-emotion detection, two independent methods).
+
+**Open questions asked and how answered:**
+- Scope: confirmed re-running the same 100 Step 2 reviews with the extended prompt (one
+  combined sentiment+emotion call per review), not a fresh batch or a second separate
+  call. 100 new calls against the shared endpoint.
+- LLM emotion label set: confirmed constrained to the same 8 NRC categories, no
+  free-text reconciliation step needed.
+- NRC lexicon source: confirmed NRC Word-Emotion Association Lexicon (EmoLex), Saif
+  Mohammad and Peter Turney, National Research Council Canada.
+
+**Finding surfaced, not defaulted silently:** EmoLex's own terms of use include "No
+Redistribution: Do not redistribute the data... you may not rent or license the use of
+the lexicon nor otherwise permit third parties to use it," alongside "Research Use: freely
+for non-commercial research and educational purposes" (which this assignment qualifies
+for). Since the project repo is public, the lexicon file itself cannot be committed to
+it. Added `data/nrc_lexicon/` to [.gitignore](.gitignore), same treatment as the raw
+dataset file, and the download command is documented in code/README instead of the raw
+file being checked in.
+
+**Built:**
+- [src/nrc_lexicon.py](src/nrc_lexicon.py): loads the word-level EmoLex file, scores
+  review text per emotion, and picks a primary emotion. A text with zero lexicon-matched
+  words returns `None` (genuinely undetermined), not a silent default. Ties broken by a
+  fixed alphabetical order over the 8 emotions.
+- [tests/test_nrc_lexicon.py](tests/test_nrc_lexicon.py): 12 unit tests using a small
+  hand-built test lexicon (independent of the real downloaded file), written before
+  running on real data. Covers a word known to map to a specific emotion, a word with no
+  entry, and a genuine tie between two emotions with the alphabetical tie-break rule
+  explicitly confirmed.
+- [src/emotion_prompt.py](src/emotion_prompt.py): extends Step 1's prompt design
+  (untrusted-data delimiters, injection resistance, no rating in the payload) to also
+  return a primary emotion constrained to the 8 NRC categories. Kept as a new file so
+  Step 1's original binary-only prompt stays intact as its own artifact.
+- [src/emotion_response_parser.py](src/emotion_response_parser.py) +
+  [tests/test_emotion_response_parser.py](tests/test_emotion_response_parser.py): strict
+  parser for the two-key `{"label": ..., "emotion": ...}` response, same
+  flag-don't-coerce philosophy as Step 1. 18 unit tests, all passing.
+- [src/step5_emotion_detection.py](src/step5_emotion_detection.py): runs both methods
+  over the same 100 reviews, caches LLM responses by review id
+  ([output/step5_cache.json](output/step5_cache.json)), saves per-review results to
+  [output/step5_results.json](output/step5_results.json) and the summary to
+  [output/step5_summary.json](output/step5_summary.json).
+
+**Results (from output/step5_summary.json, independently confirmed below):**
+- Emotion agreement rate: **0.2375** (19 of 80 reviews where both methods reached a
+  determination). Reported as-is, genuinely low, not anchored to any expectation.
+- 20 of 100 reviews had zero NRC-lexicon-matched words (undetermined by that method).
+  0 LLM responses were malformed.
+- LLM emotion distribution skews toward joy (70) and trust (21); NRC skews heavily
+  toward anticipation (56 of 80, about 70%), since many generic words common in gift-card
+  reviews ("gift," "perfect," "easy") carry an anticipation association in the lexicon
+  regardless of actual context.
+- Concrete disagreement examples: review_id 0 ("Great gift") LLM=joy vs NRC=anticipation
+  (a genuine tie in NRC's own scores between joy and anticipation at 2 each, broken
+  alphabetically toward anticipation); review_id 4 ("Not $10 Gift Cards," a review about
+  being shorted value) LLM=anger vs NRC=joy, illustrating the word-list method's
+  context-blindness, fooled by generic positive-associated words despite the review
+  being a complaint; review_id 63 ("A problem to use at drive thru's") LLM=anger vs
+  NRC=trust, the same context-blindness pattern; review_id 46 ("Love it!!," whose actual
+  text was sarcastic/negative and was also a sentiment mismatch back in Step 2) LLM=disgust
+  vs NRC=anticipation, showing the LLM's emotion call staying internally consistent with
+  its earlier (also disagreeing-with-rating) sentiment call on this same review;
+  review_id 65 ("Nice to have") LLM=trust vs NRC=disgust, another real alphabetical
+  tie-break case (disgust and sadness tied at 1 each in NRC's raw scores).
+
+**Self-check (Builder, lean mode, self-verified, not independently verified):**
+recomputed the emotion agreement rate directly from `output/step5_results.json`
+independently of the summary file: 19/80 = 0.2375, exact match. Cross-checked the stored
+`emotion_match` field against a fresh recomputation from `llm_emotion`/`nrc_emotion` for
+every row: 0 inconsistencies. Confirmed the rating field is genuinely absent from the
+new `emotion_prompt.py` payload (same spy-on-requests.post check as Step 1). Full test
+suite: 66/66 pass.
+
+**Settings used this session:** model `cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit`,
+`temperature: 0`, `enable_thinking: false`.
+
+**Classification-endpoint call count this session:** 100 (the full 100-review batch,
+re-run with the extended sentiment+emotion prompt; 0 served from cache since this was
+the first run of this step).
+
+**What's left for next session:** get go-ahead on the Step 5 QA gate, commit and push,
+then Step 6 (three-class scoring with balanced sampling), full mode with QA Agent + Red
+Team Agent (Opus 5 anchoring check), per PLAN.md Section 11. Step 6 has its own
+confirm-with-me items: whether this run fully replaces Steps 1-5 outputs or is kept
+separate, and the Section 4 call-count ceiling for the larger balanced batch.

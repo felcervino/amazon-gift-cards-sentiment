@@ -1,0 +1,1005 @@
+{
+  "total_reviews": 100,
+  "n_both_methods_determined": 80,
+  "n_nrc_undetermined_no_lexicon_words": 20,
+  "n_llm_malformed": 0,
+  "emotion_agreement_rate": 0.2375,
+  "llm_emotion_distribution": {
+    "joy": 70,
+    "anger": 6,
+    "trust": 21,
+    "disgust": 2,
+    "anticipation": 1
+  },
+  "nrc_emotion_distribution": {
+    "anticipation": 56,
+    "joy": 19,
+    "anger": 3,
+    "trust": 1,
+    "disgust": 1
+  },
+  "n_disagreements": 61,
+  "disagreements": [
+    {
+      "review_id": 0,
+      "title": "Great gift",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 1,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 2,
+        "trust": 2
+      }
+    },
+    {
+      "review_id": 3,
+      "title": "Nice looking",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 1,
+        "anticipation": 8,
+        "disgust": 0,
+        "fear": 1,
+        "joy": 8,
+        "sadness": 1,
+        "surprise": 3,
+        "trust": 4
+      }
+    },
+    {
+      "review_id": 4,
+      "title": "Not $10 Gift Cards",
+      "llm_emotion": "anger",
+      "nrc_emotion": "joy",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 4,
+        "disgust": 0,
+        "fear": 1,
+        "joy": 7,
+        "sadness": 1,
+        "surprise": 4,
+        "trust": 3
+      }
+    },
+    {
+      "review_id": 6,
+      "title": "Easy gift",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 10,
+      "title": "Convenient, safe, and perfect gift",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 3,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 3,
+        "sadness": 0,
+        "surprise": 2,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 11,
+      "title": "Giftcard",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 3,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 3,
+        "sadness": 0,
+        "surprise": 3,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 12,
+      "title": "Simple giftcard!",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 1,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 2,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 13,
+      "title": "Great giftcard",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 14,
+      "title": "Easy..",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 16,
+      "title": "Great Product.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 17,
+      "title": "No note attached to sent gift card",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 1,
+        "anticipation": 7,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 3,
+        "sadness": 0,
+        "surprise": 2,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 18,
+      "title": "Gift card",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 0,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 19,
+      "title": "Good",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 2,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 20,
+      "title": "Good Product",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 21,
+      "title": "Good Product",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 22,
+      "title": "Good Product",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 23,
+      "title": "Good Product",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 24,
+      "title": "Good Product",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 25,
+      "title": "Good product",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 26,
+      "title": "Good product",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 27,
+      "title": "Good Product",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 28,
+      "title": "Good Product",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 29,
+      "title": "Good",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 30,
+      "title": "Gift card",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 0,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 36,
+      "title": "Birthday Gift",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 3,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 3,
+        "sadness": 0,
+        "surprise": 2,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 38,
+      "title": "Reload is super easy.",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 39,
+      "title": "Convenience of giftabiliy.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 40,
+      "title": "Great Gift Package",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 41,
+      "title": "Grest Sandwitches !!",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 0,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 42,
+      "title": "GOOD PIZZA !!",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 0,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 44,
+      "title": "Money was loaded on card",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anger",
+      "nrc_scores": {
+        "anger": 1,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 46,
+      "title": "Love it!!",
+      "llm_emotion": "disgust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 47,
+      "title": "Five Stars",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anger",
+      "nrc_scores": {
+        "anger": 1,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 51,
+      "title": "The added value was great, but no more",
+      "llm_emotion": "anger",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 3,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 2,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 56,
+      "title": "As described.",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 58,
+      "title": "12 year old daughter loved this gift!",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 59,
+      "title": "Easy to send to an Amazon shopper",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 1,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 2,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 60,
+      "title": "Rec'd promo from Amazon when reloading gift card.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 3,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 3,
+        "sadness": 0,
+        "surprise": 3,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 62,
+      "title": "What a great company",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 63,
+      "title": "A problem to use at drive thru's",
+      "llm_emotion": "anger",
+      "nrc_emotion": "trust",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 3,
+        "disgust": 0,
+        "fear": 1,
+        "joy": 2,
+        "sadness": 1,
+        "surprise": 1,
+        "trust": 5
+      }
+    },
+    {
+      "review_id": 65,
+      "title": "Nice to have",
+      "llm_emotion": "trust",
+      "nrc_emotion": "disgust",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 0,
+        "disgust": 1,
+        "fear": 0,
+        "joy": 0,
+        "sadness": 1,
+        "surprise": 0,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 66,
+      "title": "Excellent Gift",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 70,
+      "title": "Perfect for a birthday \ud83c\udf82",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 6,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 5,
+        "sadness": 0,
+        "surprise": 4,
+        "trust": 2
+      }
+    },
+    {
+      "review_id": 71,
+      "title": "Perfect!",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 3,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 73,
+      "title": "It was soooo easy",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 75,
+      "title": "Amazon Thinks of Everything!",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 0,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 80,
+      "title": "Believe this is the best gift to give !",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 0,
+        "sadness": 1,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 81,
+      "title": "convenient",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 82,
+      "title": "Five Stars",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 83,
+      "title": "Best gift for someone you don\u2019t know what to get",
+      "llm_emotion": "trust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 84,
+      "title": "Great value",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 2,
+        "trust": 2
+      }
+    },
+    {
+      "review_id": 85,
+      "title": "Sweet gift!",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 2
+      }
+    },
+    {
+      "review_id": 87,
+      "title": "Great Holder",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 88,
+      "title": "Gift card",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 0,
+        "surprise": 0,
+        "trust": 0
+      }
+    },
+    {
+      "review_id": 90,
+      "title": "Good litte thank-you gifts",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 1,
+        "anticipation": 3,
+        "disgust": 0,
+        "fear": 1,
+        "joy": 3,
+        "sadness": 0,
+        "surprise": 2,
+        "trust": 3
+      }
+    },
+    {
+      "review_id": 91,
+      "title": "Okay as a gift",
+      "llm_emotion": "disgust",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 1,
+        "anticipation": 3,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 2,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 92,
+      "title": "Good gift",
+      "llm_emotion": "trust",
+      "nrc_emotion": "joy",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 2
+      }
+    },
+    {
+      "review_id": 93,
+      "title": "So convenient.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 1,
+        "anticipation": 4,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 3,
+        "sadness": 0,
+        "surprise": 2,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 94,
+      "title": "Just what was ordered.",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 2,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 2,
+        "sadness": 0,
+        "surprise": 1,
+        "trust": 1
+      }
+    },
+    {
+      "review_id": 95,
+      "title": "Can Do It From Home",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 9,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 7,
+        "sadness": 1,
+        "surprise": 7,
+        "trust": 2
+      }
+    },
+    {
+      "review_id": 99,
+      "title": "Perfect gift sent I a lovely container",
+      "llm_emotion": "joy",
+      "nrc_emotion": "anticipation",
+      "nrc_scores": {
+        "anger": 0,
+        "anticipation": 1,
+        "disgust": 0,
+        "fear": 0,
+        "joy": 1,
+        "sadness": 1,
+        "surprise": 1,
+        "trust": 1
+      }
+    }
+  ],
+  "new_endpoint_calls_this_run": 100,
+  "model": "cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit",
+  "temperature": 0,
+  "enable_thinking": false,
+  "nrc_lexicon_source": "NRC Word-Emotion Association Lexicon (EmoLex), Saif Mohammad and Peter Turney, National Research Council Canada"
+}
