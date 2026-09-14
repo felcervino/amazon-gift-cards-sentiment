@@ -1,4 +1,5 @@
-"""Step 3: generate the self-contained results dashboard from Step 2's saved output.
+"""Steps 3 and 4: generate the self-contained results dashboard from Step 2's saved output,
+including Step 4's live match-status filter (all / correct / mismatched) with a live count.
 
 The raw per-review records from output/step2_results.json are embedded directly into the
 HTML as JSON data. Every statistic shown on the page (agreement rate, per-class accuracy,
@@ -463,6 +464,41 @@ td.cell-mistake { color: var(--negative); background: var(--negative-bg); }
   font-variant-numeric: tabular-nums;
 }
 
+/* Step 4: segmented match-status filter (All / Correct / Mismatched). */
+.filter-group {
+  display: inline-flex;
+  gap: 2px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+}
+
+.filter-group button {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease),
+              box-shadow var(--dur) var(--ease);
+}
+
+.filter-group button:hover { color: var(--text); }
+
+.filter-group button.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-group button.active[data-filter="mismatch"] { color: var(--negative); }
+.filter-group button.active[data-filter="correct"] { color: var(--positive); }
+
 .review-table-wrap {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -716,6 +752,11 @@ footer code {
     <p class="section-note">Click a row to see the full text and the model's raw response.</p>
     <div class="table-controls">
       <input type="search" id="search-box" placeholder="Search title or text...">
+      <div class="filter-group" id="match-filter" role="group" aria-label="Filter by match status">
+        <button type="button" class="active" data-filter="all">All</button>
+        <button type="button" data-filter="correct">Correct</button>
+        <button type="button" data-filter="mismatch">Mismatched</button>
+      </div>
       <span class="count" id="row-count"></span>
     </div>
     <div class="review-table-wrap">
@@ -883,15 +924,23 @@ footer code {
   var tbodyEl = document.getElementById("review-tbody");
   var rowCountEl = document.getElementById("row-count");
   var searchBox = document.getElementById("search-box");
+  var filterGroup = document.getElementById("match-filter");
+  var currentMatchFilter = "all";
 
   function truncate(s, n) {
     s = s || "";
     return s.length > n ? s.slice(0, n) + "..." : s;
   }
 
-  function renderTable(filterText) {
+  // Step 4: live filter by match status (all / correct / mismatched), combined with the
+  // existing text search. Exposed on window for the self-check script to call directly
+  // and cross-check the resulting count against a manual count from the saved file.
+  function renderTable(filterText, matchFilter) {
+    matchFilter = matchFilter || currentMatchFilter;
     tbodyEl.innerHTML = "";
     var filtered = records.filter(function (r) {
+      if (matchFilter === "correct" && r.match !== true) return false;
+      if (matchFilter === "mismatch" && r.match !== false) return false;
       if (!filterText) return true;
       var haystack = ((r.title || "") + " " + (r.text || "")).toLowerCase();
       return haystack.indexOf(filterText.toLowerCase()) !== -1;
@@ -940,7 +989,9 @@ footer code {
     });
 
     rowCountEl.textContent = "Showing " + filtered.length + " of " + records.length + " reviews";
+    return filtered.length;
   }
+  window.__renderTableForSelfCheck = renderTable;
 
   function toggleDetail(tr, record) {
     var next = tr.nextElementSibling;
@@ -978,7 +1029,17 @@ footer code {
 
   searchBox.addEventListener("input", function () { renderTable(searchBox.value); });
 
-  renderTable("");
+  filterGroup.querySelectorAll("button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      currentMatchFilter = btn.getAttribute("data-filter");
+      filterGroup.querySelectorAll("button").forEach(function (b) {
+        b.classList.toggle("active", b === btn);
+      });
+      renderTable(searchBox.value, currentMatchFilter);
+    });
+  });
+
+  renderTable("", "all");
 })();
 </script>
 </body>

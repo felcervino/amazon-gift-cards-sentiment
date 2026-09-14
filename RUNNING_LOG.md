@@ -305,5 +305,37 @@ already-saved Step 2 output, no new model calls).
 **Step 3 QA gate: passed, go-ahead given.** Committed and pushed
 (`2b9026e`, "Step 3: self-contained results dashboard, QA and Red Team verified").
 
-**What's left for next session:** Step 4 (interactive review filtering), lean mode with
-Builder/Frontend self-check, per PLAN.md Section 9.
+---
+
+## Session 4
+
+**Steps worked on:** Step 4 (interactive review filtering).
+
+**Built:** extended [src/generate_dashboard.py](src/generate_dashboard.py) (same
+generator, no new files) with a live match-status filter: a segmented "All / Correct /
+Mismatched" button group next to the existing text search, styled on the same theme
+tokens. `renderTable()` now takes a match-status filter alongside the existing text
+filter and both compose (AND). The row count updates live and reflects the actual
+rendered `<tr>` count, not a separately tracked number. Exposed
+`window.__renderTableForSelfCheck` for direct, scriptable self-checking.
+
+**Self-check (Builder/Frontend, lean mode, self-verified, not independently
+verified):** computed a manual count directly from `output/step2_results.json`
+(`match is True` / `match is False`): total 100, correct 97, mismatched 3. Loaded the
+regenerated dashboard in a real browser and clicked the actual "Mismatched" and
+"Correct" filter buttons (not just called the underlying function): "Mismatched" showed
+"Showing 3 of 100 reviews" with exactly 3 rendered rows, all carrying the mismatch
+styling class; "Correct" showed "Showing 97 of 100 reviews" with exactly 97 rendered
+rows. Both match the manual count exactly. Re-ran the full test suite (36/36 pass) and
+the XSS static check (still exactly 3 closing `</script>` tags) after the change to
+confirm no regression.
+
+**Classification-endpoint call count this session:** 0 (filter logic only, no new model
+calls, no change to Step 2's saved data).
+
+**What's left for next session:** Step 4 QA gate go-ahead, commit and push, then Step 5
+(primary-emotion detection, two independent methods), lean mode. Step 5 requires
+confirming scope with Felipe before making any calls (does extending the Step 1 prompt
+mean re-running the model on the same reviews, a fresh batch, or a second separate call
+per review), confirming whether the LLM's emotion label set is constrained to the 8 NRC
+labels or free-text, and confirming the NRC lexicon source/license before pulling it in.
