@@ -209,7 +209,98 @@ all new calls, 0 served from cache since this was the first run).
 **Step 2 QA gate: passed, go-ahead given.** Committed and pushed
 (`7a449a8`, "Step 2: score first-100 batch against rating answer key, QA verified").
 
-**What's left for next session:** Step 3 (results dashboard v1), full mode with
-Frontend/Design Agent building it and QA Agent + Red Team Agent (XSS check) independently
-checking, per PLAN.md Section 8. Confirm dashboard framework choice with Felipe first
-(single self-contained HTML file is the assignment's suggested default).
+---
+
+## Session 3
+
+**Steps worked on:** Step 3 (results dashboard v1).
+
+**Open questions asked and how answered:**
+- Dashboard framework: confirmed single self-contained HTML file.
+- Dashboard content scope: confirmed headline stat cards, 2x2 mistake breakdown, full
+  100-row review table with click-to-expand detail (full text + raw model response).
+
+**Built:**
+- [src/generate_dashboard.py](src/generate_dashboard.py): generator. Embeds the full
+  `output/step2_results.json` array directly as JSON in the page; every statistic shown
+  (agreement rate, per-class accuracy, confusion matrix, class balance) is computed
+  client-side in the browser from that same embedded array, never precomputed in Python
+  and typed into the template, so numbers cannot drift from the source file. Review
+  title/text (untrusted, user-generated) rendered exclusively via `textContent`/DOM APIs,
+  never `innerHTML` with unescaped content. Palette/typography built entirely on CSS
+  custom-property theme tokens for recolorability.
+- [dashboard/dashboard.html](dashboard/dashboard.html): the generated dashboard.
+- [src/dashboard_xss_test.py](src/dashboard_xss_test.py): Red Team XSS test, runs an
+  adversarial record through the actual `render_dashboard()` rendering pipeline.
+- [tests/test_generate_dashboard.py](tests/test_generate_dashboard.py): 7 unit tests,
+  including 2 regression tests for the Red Team findings below.
+
+**Layout bugs found and fixed during my own functional testing (multiple viewport
+sizes, per the Step 3/7 checklist requirement):**
+1. CSS hid `td.col-text` at narrow viewports but not the matching `th`, misaligning the
+   "Text" header over the "Answer key" column. Fixed by hiding both.
+2. `.review-table-wrap` used `overflow: hidden` for its border-radius, which silently
+   clipped ~184px of the table (the "Model said" and "Match" columns) instead of scrolling
+   at narrow widths, confirmed via `wrap.scrollWidth` (485px) vs `clientWidth` (301px).
+   Fixed with `overflow-x: auto`.
+3. Raw HTML entities from the source dataset (e.g. `&#34;`, `<br />`) were displaying as
+   literal escaped text in review titles/bodies (safe, but unpolished). Fixed with a safe
+   entity-decoding helper (the standard `<textarea>` RCDATA trick: decodes character
+   references, cannot execute markup since textarea content is never parsed as elements),
+   applied before every `textContent` assignment of title/text.
+
+**QA gate (full mode, genuinely separate subagents via the `Explore` workaround noted in
+Session 2):**
+- **QA Agent pass:** independently recomputed all numbers from the JSON embedded in
+  `dashboard/dashboard.html`, confirmed byte-for-byte identical to
+  `output/step2_results.json` (not a filtered/altered subset). All figures matched exactly
+  (0.97 overall, 97.85%/85.71% per-class, 93/7 balance, confusion matrix 91/2/1/6).
+  Independent library-shuffle read: "deliberately designed, not default library output"
+  (cited the theme-token system, considered palette, three-tier typography). Independent
+  non-technical-reader read: confirmed a lay reader would see both the flattering headline
+  and the weaker NEGATIVE-class caveat, not just the former. Confirmed the file is
+  genuinely self-contained (only one external URL in the whole file: the footer's
+  data-source citation link).
+- **Red Team Agent pass:** audited every place review content reaches the DOM, confirmed
+  only `textContent` is used for untrusted data. Ran 14 additional adversarial payloads
+  beyond the original test (RCDATA-breakout attempts, JSON-breakout/prototype-pollution
+  attempt, lone UTF-16 surrogates, line/paragraph separators, encoding collisions, fullwidth
+  Unicode, escaped-backslash chains) through the actual pipeline: all neutralized. Proved
+  algebraically that the `safe_json_for_script` escape-ordering cannot be exploited.
+  Found two real (non-XSS) bugs: (A) a NaN/Infinity rating would emit invalid JSON tokens
+  into the embedded script block, silently breaking the entire page's rendering, not just
+  one row; (B) an unpaired UTF-16 surrogate in review text would crash dashboard
+  generation outright (`UnicodeEncodeError` on the strict-utf8 file write). Disclosed
+  transparently that verifying finding (B) required writing one temporary scratch file via
+  Bash despite the read-only role design, which it then deleted itself.
+
+**Findings fixed and independently re-verified (defined failure path, PLAN.md Guardrail
+14):** added `sanitize_records_for_embedding()` (nulls non-finite floats before
+embedding) plus `allow_nan=False` as defense in depth for finding (A); changed the file
+write to `errors="replace"` for finding (B). Both fixes covered by new regression tests.
+A focused Red Team re-check (fresh `Explore` subagent instance) independently confirmed
+both fixes work, the full test suite still passes (36/36), and the original XSS defense
+still holds after the changes.
+
+**Opus 5 final polish pass:** run only after the functional version was signed off by QA
+per PLAN.md's explicit sequencing. Constrained explicitly to CSS-only changes (no new
+functionality, no changes to `safe_json_for_script`, `sanitize_records_for_embedding`,
+`decodeEntities`, or the textContent-based rendering). Expanded the theme-token system,
+refined typography scale/tracking, added hover/elevation states, fixed a specificity bug
+where hovering a mismatched row lost its red styling, and fixed two of its own CSS
+regressions (a horizontal-scroll trigger on the confusion matrix headers, a word-breaking
+issue on ordinary titles) before finishing. I independently re-ran the full test suite
+(36/36 pass) and the XSS static check (still exactly 3 closing `</script>` tags) myself
+after the pass rather than only trusting its self-report, and visually spot-checked the
+result in-browser (no console errors, mismatch rows visibly distinct with a standing red
+left bar).
+
+**Settings/model notes:** dashboard generation and fixes used Sonnet 5 (this session).
+Final polish pass used Opus 5, a single bounded use per PLAN.md Section 3's usage
+discipline. QA/Red Team passes used Sonnet 5 via the `Explore` subagent workaround.
+
+**Classification-endpoint call count this session:** 0 (Step 3 is pure dashboard work over
+already-saved Step 2 output, no new model calls).
+
+**What's left for next session:** get go-ahead on the Step 3 QA gate, commit and push,
+then Step 4 (interactive review filtering), lean mode with Builder/Frontend self-check.
