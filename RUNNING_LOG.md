@@ -333,9 +333,12 @@ confirm no regression.
 **Classification-endpoint call count this session:** 0 (filter logic only, no new model
 calls, no change to Step 2's saved data).
 
-**What's left for next session:** Step 4 QA gate go-ahead, commit and push, then Step 5
-(primary-emotion detection, two independent methods), lean mode. Step 5 requires
-confirming scope with Felipe before making any calls (does extending the Step 1 prompt
-mean re-running the model on the same reviews, a fresh batch, or a second separate call
-per review), confirming whether the LLM's emotion label set is constrained to the 8 NRC
-labels or free-text, and confirming the NRC lexicon source/license before pulling it in.
+**Step 4 QA gate: passed, go-ahead given.** Committed and pushed
+(`367f8ae`, "Step 4: live match-status filter with manual-count self-check").
+
+**What's left for next session:** Step 5 (primary-emotion detection, two independent
+methods), lean mode. Requires confirming scope with Felipe before making any calls (does
+extending the Step 1 prompt mean re-running the model on the same reviews, a fresh batch,
+or a second separate call per review), confirming whether the LLM's emotion label set is
+constrained to the 8 NRC labels or free-text, and confirming the NRC lexicon source/
+license before pulling it in.
