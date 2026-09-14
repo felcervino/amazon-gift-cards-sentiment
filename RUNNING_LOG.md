@@ -302,5 +302,8 @@ discipline. QA/Red Team passes used Sonnet 5 via the `Explore` subagent workarou
 **Classification-endpoint call count this session:** 0 (Step 3 is pure dashboard work over
 already-saved Step 2 output, no new model calls).
 
-**What's left for next session:** get go-ahead on the Step 3 QA gate, commit and push,
-then Step 4 (interactive review filtering), lean mode with Builder/Frontend self-check.
+**Step 3 QA gate: passed, go-ahead given.** Committed and pushed
+(`2b9026e`, "Step 3: self-contained results dashboard, QA and Red Team verified").
+
+**What's left for next session:** Step 4 (interactive review filtering), lean mode with
+Builder/Frontend self-check, per PLAN.md Section 9.
