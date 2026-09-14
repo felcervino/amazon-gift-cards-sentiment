@@ -1,0 +1,51 @@
+{
+  "total_reviews": 100,
+  "n_valid_for_scoring": 100,
+  "n_flagged_rating": 0,
+  "n_flagged_parse": 0,
+  "overall_agreement_rate": 0.97,
+  "class_balance_from_answer_key": {
+    "POSITIVE": 93,
+    "NEGATIVE": 7
+  },
+  "class_balance_note": "93 of 100 rows (93.0%) are POSITIVE by the rating answer key. The data is heavily skewed toward high ratings; a high overall agreement rate on this batch does not by itself mean the model is strong on the minority NEGATIVE class.",
+  "per_class_accuracy": {
+    "POSITIVE": {
+      "n": 93,
+      "n_correct": 91,
+      "accuracy": 0.978494623655914
+    },
+    "NEGATIVE": {
+      "n": 7,
+      "n_correct": 6,
+      "accuracy": 0.8571428571428571
+    }
+  },
+  "mismatches": [
+    {
+      "review_id": 17,
+      "rating": 5.0,
+      "answer_key_label": "POSITIVE",
+      "parsed_label": "NEGATIVE",
+      "title": "No note attached to sent gift card"
+    },
+    {
+      "review_id": 46,
+      "rating": 5.0,
+      "answer_key_label": "POSITIVE",
+      "parsed_label": "NEGATIVE",
+      "title": "Love it!!"
+    },
+    {
+      "review_id": 98,
+      "rating": 3.0,
+      "answer_key_label": "NEGATIVE",
+      "parsed_label": "POSITIVE",
+      "title": "Easy to use"
+    }
+  ],
+  "new_endpoint_calls_this_run": 100,
+  "model": "cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit",
+  "temperature": 0,
+  "enable_thinking": false
+}

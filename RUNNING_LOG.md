@@ -79,7 +79,7 @@ requirements.txt, this log, and the README em-dash fix).
 
 ---
 
-### Step 1 — structured sentiment prompt
+### Step 1: structured sentiment prompt
 
 **Edge-case handling confirmed with Felipe before locking in:** weigh review text over
 title on conflict, forced best-effort binary choice even on terse/angry short reviews
@@ -141,10 +141,73 @@ needed yet since Steps 2 and 6 are the first batch-scale steps.
 **Session 1 closed.** Both Step 0 and Step 1 finished and pushed. Repo:
 https://github.com/felcervino/amazon-gift-cards-sentiment
 
-**What's left for next session:** Step 2 (Section 7 of PLAN.md), full mode: confirm
-first-100 vs seeded-random-100 with Felipe, write unit tests for the binary boundary logic
-(rating >= 4 POSITIVE, else NEGATIVE, including 3-star as NEGATIVE, not excluded) before
-running on real data, confirm the Section 4 call-count ceiling with Felipe before running
-at the 100-row scale, derive the answer key from rating only, save raw per-review results,
-compute and save agreement rate/per-class accuracy/class balance, list mismatches, then a
-genuinely separate QA Agent subagent independently recomputes the numbers before the gate.
+---
+
+## Session 2
+
+**Steps worked on:** Step 2 (score 100-row batch against the rating).
+
+**Open questions asked and how answered:**
+- Row selection: confirmed literally the first 100 rows (not seeded random), since Step 6
+  already covers proper random balanced sampling later.
+- Call-count ceiling for this batch: confirmed no check-in needed, 100 sequential calls is
+  fine for a 100-row batch.
+
+**Process/tooling finding (affects every future full-mode step):** PLAN.md Section 2.1
+assumed the `.claude/agents/*.md` files would be invocable by name as subagents ("Claude
+Code will treat each as an invocable, separately-contexted subagent"). In this harness,
+the Agent tool only recognizes its own built-in subagent types (`claude`,
+`claude-code-guide`, `Explore`, `general-purpose`, `Plan`, `statusline-setup`); a call with
+`subagent_type: "qa-agent"` errored with "Agent type not found". Worked around this by
+using the built-in `Explore` type (which technically enforces no Write/Edit tool access,
+matching QA/Red Team/Verification's read-only design) and passing the full role text from
+the relevant `.claude/agents/*.md` file inline in the prompt, so the substance of the
+independence (separate context, no write access, explicit "recompute, don't trust")
+holds even though the literal name-based invocation the plan describes does not work
+here. Will use this same pattern (`Explore` + inline role prompt) for every future
+full-mode QA/Red Team/Verification pass.
+
+**Built:**
+- [src/answer_key.py](src/answer_key.py): binary answer-key logic, rating >= 4 POSITIVE,
+  else NEGATIVE (3-star included as NEGATIVE), unexpected values flagged not coerced.
+- [tests/test_answer_key.py](tests/test_answer_key.py): 12 unit tests written before
+  running on real data, including the critical rating-3.0-is-NEGATIVE case and flagged
+  cases (None, string, 0, 6, non-integral, bool, negative). All pass.
+- [src/step2_score_batch.py](src/step2_score_batch.py): scores the first 100 reviews.
+  Caches raw model responses by review id (line index) in
+  [output/step2_cache.json](output/step2_cache.json) so re-runs never re-call the endpoint
+  for an already-classified row. Bounded retry/backoff (3 attempts) on transient request
+  failures. Saves per-review results to
+  [output/step2_results.json](output/step2_results.json) and the computed summary to
+  [output/step2_summary.json](output/step2_summary.json).
+
+**Results (from output/step2_summary.json, independently confirmed below):**
+- Overall agreement rate: **0.97** (97/100).
+- Per-class accuracy: POSITIVE 0.9785 (91/93), NEGATIVE 0.8571 (6/7).
+- Class balance from the answer key: 93 POSITIVE, 7 NEGATIVE, out of 100. Heavily skewed
+  toward high ratings, called out explicitly in the summary rather than buried.
+- 0 flagged ratings, 0 flagged/malformed model responses.
+- 3 mismatches: review_id 17 (5-star, model said NEGATIVE), review_id 46 (5-star, model
+  said NEGATIVE), review_id 98 (3-star, model said POSITIVE, the exact kind of 3-star case
+  the assignment hints at, reported as-is per the no-anchoring guardrail).
+
+**QA gate (full mode, genuinely separate subagent, read-only, see tooling finding
+above):** independently recomputed all numbers directly from `output/step2_results.json`
+using fresh code, not by reading the summary file. Result: overall agreement rate 0.97,
+per-class accuracy POSITIVE 0.9785 / NEGATIVE 0.8571, class balance 93/7, all matched
+Builder's numbers exactly. Confirmed the 3-star-is-NEGATIVE rule was applied correctly on
+both 3-star rows in the batch (review_id 91 cited as evidence). Confirmed zero flagged
+rows and that the `match` field is internally consistent with the raw labels on all 100
+rows. Ran the full unit test suite independently: 29/29 passed. No discrepancies found.
+
+**Settings used this session:** model `cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit`,
+`temperature: 0`, `enable_thinking: false`.
+
+**Classification-endpoint call count this session:** 100 (the full first-100-rows batch,
+all new calls, 0 served from cache since this was the first run).
+
+**QA gate: pending Felipe's go-ahead before commit and push.**
+
+**What's left for next session:** get go-ahead on the Step 2 QA gate, commit and push,
+then Step 3 (results dashboard v1), full mode with Frontend/Design Agent building it and
+QA Agent + Red Team Agent (XSS check) independently checking, per PLAN.md Section 8.
