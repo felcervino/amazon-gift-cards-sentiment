@@ -421,8 +421,11 @@ suite: 66/66 pass.
 re-run with the extended sentiment+emotion prompt; 0 served from cache since this was
 the first run of this step).
 
-**What's left for next session:** get go-ahead on the Step 5 QA gate, commit and push,
-then Step 6 (three-class scoring with balanced sampling), full mode with QA Agent + Red
-Team Agent (Opus 5 anchoring check), per PLAN.md Section 11. Step 6 has its own
-confirm-with-me items: whether this run fully replaces Steps 1-5 outputs or is kept
-separate, and the Section 4 call-count ceiling for the larger balanced batch.
+**Step 5 QA gate: passed, go-ahead given.** Committed and pushed
+(`260a840`, "Step 5: LLM and NRC word-list primary-emotion detection, compared").
+
+**What's left for next session:** Step 6 (three-class scoring with balanced sampling),
+full mode with QA Agent + Red Team Agent (Opus 5 anchoring check), per PLAN.md Section
+11. Step 6 has its own confirm-with-me items: whether this run fully replaces Steps 1-5
+outputs or is kept separate, and the Section 4 call-count ceiling for the larger balanced
+batch.
