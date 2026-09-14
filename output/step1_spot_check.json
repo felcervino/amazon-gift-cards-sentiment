@@ -1,0 +1,68 @@
+[
+  {
+    "line_index": 5,
+    "title": "Cute!",
+    "text": "That snowman tin is adorable",
+    "star_rating_context_only": 5.0,
+    "expected_obvious_label": "POSITIVE",
+    "raw_model_response": "{\"label\": \"POSITIVE\"}",
+    "parsed_status": "ok",
+    "parsed_label": "POSITIVE",
+    "match": true
+  },
+  {
+    "line_index": 10,
+    "title": "Convenient, safe, and perfect gift",
+    "text": "My grandson inlaw loves his gift cards, so it's the perfect gift for Christmas",
+    "star_rating_context_only": 5.0,
+    "expected_obvious_label": "POSITIVE",
+    "raw_model_response": "{\"label\": \"POSITIVE\"}",
+    "parsed_status": "ok",
+    "parsed_label": "POSITIVE",
+    "match": true
+  },
+  {
+    "line_index": 57,
+    "title": "Perfect gift for any occasion. Let them pick out what they love!",
+    "text": "I mean really, who wouldn't LOVE this?!?  Wonderful gift for any occasion.",
+    "star_rating_context_only": 5.0,
+    "expected_obvious_label": "POSITIVE",
+    "raw_model_response": "{\"label\": \"POSITIVE\"}",
+    "parsed_status": "ok",
+    "parsed_label": "POSITIVE",
+    "match": true
+  },
+  {
+    "line_index": 15,
+    "title": "One Star",
+    "text": "Card did not work!!!!",
+    "star_rating_context_only": 1.0,
+    "expected_obvious_label": "NEGATIVE",
+    "raw_model_response": "{\"label\": \"NEGATIVE\"}",
+    "parsed_status": "ok",
+    "parsed_label": "NEGATIVE",
+    "match": true
+  },
+  {
+    "line_index": 199,
+    "title": "One of the worst.",
+    "text": "I am thoroughly disappointed and frustrated with this card. I use GCs all the time. This issuing back/company sucks. I can\u2019t make any purchases with this card! Okay, let me be more specific, the purchases I have attempted to make have all been declined. How?! I registered the card, followed every step to the T! It\u2019s baffling. I will never purchase this stupid ass GC again. If I could, I would return it.",
+    "star_rating_context_only": 1.0,
+    "expected_obvious_label": "NEGATIVE",
+    "raw_model_response": "{\"label\": \"NEGATIVE\"}",
+    "parsed_status": "ok",
+    "parsed_label": "NEGATIVE",
+    "match": true
+  },
+  {
+    "line_index": 629,
+    "title": "Card was invalid void not activated....",
+    "text": "I\u2019d give zero stars if possible. After purchasing this gift card on Lightning Deal during Prime Days I will never purchase another gift card from amazon again. A $50 gift card for $40 wasn\u2019t worth all the time I spent trying to get the card to work or<br />my $ back. What the problem was is still unknown. Amazon customer service didn\u2019t help me as I was referred to Apple. After a lengthy conversation with Apple the result was the card wasn\u2019t identified or activated. I was referred back to Amazon. It was a battle with Amazon Customer service (which I usually receive 100% satisfaction) to resolve this issue. A battle. It was an Apple problem. No it wasn\u2019t. Finally since there was nothing amazon could do to make the card valid I requested my $40 back. Another battle after being referred to more people to discuss the problem. Finally after demanding resolution & speaking to the \u201cright\u201d person at Amazon, I was refunded the $40. Since no activation papers are sent with the card trusting the system applies. The system didn\u2019t work with this card. After my experience I wouldn\u2019t suggest purchasing gift cards. Amazon needs to state they will include activation paperwork with the gift card, Until I read such words I\u2019ll  never purchase a gift card again even if it\u2019s a deal is too good to pass up.",
+    "star_rating_context_only": 1.0,
+    "expected_obvious_label": "NEGATIVE",
+    "raw_model_response": "{\"label\": \"NEGATIVE\"}",
+    "parsed_status": "ok",
+    "parsed_label": "NEGATIVE",
+    "match": true
+  }
+]
