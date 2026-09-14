@@ -133,6 +133,18 @@ spot-check) + 2 (Step 1 self-check: rating-absence call + adversarial call) = 10
 All single-review calls, well under any batch ceiling; no Section 4 ceiling confirmation
 needed yet since Steps 2 and 6 are the first batch-scale steps.
 
-**What's left for next session:** get go-ahead on the Step 1 QA gate, commit and push,
-then start Step 2 (100-row batch scoring against the rating) in a fresh session per the
-usage-paced calendar.
+**Step 1 QA gate: passed, go-ahead given.** Committed and pushed
+(`b0b514b`, "Step 1: structured sentiment prompt, strict parser, spot-check, self-check").
+
+---
+
+**Session 1 closed.** Both Step 0 and Step 1 finished and pushed. Repo:
+https://github.com/felcervino/amazon-gift-cards-sentiment
+
+**What's left for next session:** Step 2 (Section 7 of PLAN.md), full mode: confirm
+first-100 vs seeded-random-100 with Felipe, write unit tests for the binary boundary logic
+(rating >= 4 POSITIVE, else NEGATIVE, including 3-star as NEGATIVE, not excluded) before
+running on real data, confirm the Section 4 call-count ceiling with Felipe before running
+at the 100-row scale, derive the answer key from rating only, save raw per-review results,
+compute and save agreement rate/per-class accuracy/class balance, list mismatches, then a
+genuinely separate QA Agent subagent independently recomputes the numbers before the gate.
