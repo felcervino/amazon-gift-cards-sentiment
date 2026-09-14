@@ -206,8 +206,10 @@ rows. Ran the full unit test suite independently: 29/29 passed. No discrepancies
 **Classification-endpoint call count this session:** 100 (the full first-100-rows batch,
 all new calls, 0 served from cache since this was the first run).
 
-**QA gate: pending Felipe's go-ahead before commit and push.**
+**Step 2 QA gate: passed, go-ahead given.** Committed and pushed
+(`7a449a8`, "Step 2: score first-100 batch against rating answer key, QA verified").
 
-**What's left for next session:** get go-ahead on the Step 2 QA gate, commit and push,
-then Step 3 (results dashboard v1), full mode with Frontend/Design Agent building it and
-QA Agent + Red Team Agent (XSS check) independently checking, per PLAN.md Section 8.
+**What's left for next session:** Step 3 (results dashboard v1), full mode with
+Frontend/Design Agent building it and QA Agent + Red Team Agent (XSS check) independently
+checking, per PLAN.md Section 8. Confirm dashboard framework choice with Felipe first
+(single self-contained HTML file is the assignment's suggested default).
