@@ -655,6 +655,15 @@ GitHub) and confirm it renders, before this step is marked done.
 
 **Classification-endpoint call count this session:** 0.
 
-**What's left:** Felipe's incognito-window visibility confirmation, then the final
-shareable link is handed off for Canvas submission (done manually by Felipe, not by any
-agent).
+**Incognito-window visibility check: confirmed by Felipe.** The repo renders correctly
+from a session with no residual local GitHub auth, closing the one check this project
+genuinely could not do on its own.
+
+**Step 9 QA gate: passed, final go-ahead given.**
+
+**Project status: all 9 steps complete.** Final shareable link, for Canvas submission
+(done manually by Felipe, not by any agent):
+https://github.com/felcervino/amazon-gift-cards-sentiment
+
+**What's left:** nothing on the agent side. Felipe pastes the link above into the Canvas
+submission for MBAX 6418 Assignment 1.
