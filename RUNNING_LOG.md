@@ -566,7 +566,15 @@ section's numbers still matching their source files exactly after the change.
 work over already-saved Step 6 output and a fresh scan of the existing local dataset
 file, no new model calls).
 
-**What's left for next session:** get go-ahead on the Step 7 QA gate, commit and push,
-then Step 8 (report/README.md and final deliverables), full mode with Verification Agent
-checking, plus Felipe's own non-delegable personal review and rewrite of the narrative,
-per PLAN.md Section 13.
+**Step 7 QA gate: passed, go-ahead given.** Committed and pushed
+(`ab79802`, "Step 7: descriptive and prediction visualizations").
+
+**Process note:** the custom `.claude/agents/*.md` subagents (builder-agent,
+frontend-agent, qa-agent, red-team-agent, verification-agent) are now recognized as
+real invocable subagent types by this harness, resolving the Session 2 finding that
+required the `Explore`-plus-inline-role-prompt workaround. Full-mode checks from Step 8
+onward will use the genuinely named agents directly.
+
+**What's left for next session:** Step 8 (report/README.md and final deliverables),
+full mode with Verification Agent checking, plus Felipe's own non-delegable personal
+review and rewrite of the narrative, per PLAN.md Section 13.
