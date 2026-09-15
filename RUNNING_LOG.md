@@ -424,8 +424,90 @@ the first run of this step).
 **Step 5 QA gate: passed, go-ahead given.** Committed and pushed
 (`260a840`, "Step 5: LLM and NRC word-list primary-emotion detection, compared").
 
-**What's left for next session:** Step 6 (three-class scoring with balanced sampling),
-full mode with QA Agent + Red Team Agent (Opus 5 anchoring check), per PLAN.md Section
-11. Step 6 has its own confirm-with-me items: whether this run fully replaces Steps 1-5
-outputs or is kept separate, and the Section 4 call-count ceiling for the larger balanced
-batch.
+---
+
+## Session 6
+
+**Steps worked on:** Step 6 (three-class scoring with balanced sampling), the heaviest
+single step.
+
+**Open questions asked and how answered:**
+- Scope: confirmed Step 6 is kept as a separate labeled run, not replacing Steps 1-5's
+  outputs, so the README can explicitly compare imbalanced vs balanced.
+- Call-count ceiling: initially confirmed ~150, then corrected upward and re-confirmed
+  before running anything, once it became clear a fair imbalanced-vs-balanced comparison
+  needs the same first-100 reviews re-scored with the new three-class prompt too (a
+  genuinely new set of calls, since Step 2's binary labels aren't comparable to
+  three-class ones). Corrected ceiling of ~250 confirmed with Felipe before any calls
+  were made.
+
+**Built:**
+- [src/three_class_answer_key.py](src/three_class_answer_key.py): redefines the answer
+  key (4-5 POSITIVE, 3 NEUTRAL, 1-2 NEGATIVE), unexpected values flagged not coerced.
+- [tests/test_three_class_answer_key.py](tests/test_three_class_answer_key.py): 13 unit
+  tests including the critical rating-3.0-is-NEUTRAL case and an explicit cross-check
+  confirming the binary (Step 2) and three-class (Step 6) rules genuinely diverge only at
+  rating 3.0.
+- [src/three_class_prompt.py](src/three_class_prompt.py) +
+  [src/three_class_response_parser.py](src/three_class_response_parser.py): three-class
+  prompt/parser, same untrusted-data delimiting, injection resistance, and
+  flag-don't-coerce discipline as Step 1. 15 parser unit tests.
+- [src/balanced_sampler.py](src/balanced_sampler.py): scans the whole 152,410-row file
+  once (under 1 second), buckets line indices by three-class label, draws a fixed-seed
+  (42) random sample of ~50 per class. [tests/test_balanced_sampler.py](tests/test_balanced_sampler.py):
+  11 unit tests on synthetic data confirming the sampler actually returns the requested
+  count per class (not an assumed-correct count), correctly returns fewer only when a
+  pool is genuinely smaller, and that the same seed reproduces the same sample.
+- [src/step6_three_class_scoring.py](src/step6_three_class_scoring.py): runs two passes
+  with the same three-class prompt: the same first-100 reviews from Steps 2/5
+  (re-scored, for a fair comparison), and the balanced ~150-review sample. Cached by
+  review id, bounded retry/backoff.
+
+**Results (output/step6_summary.json, independently confirmed below):**
+- Imbalanced (first 100): overall agreement 0.96, class balance 93 POSITIVE / 2 NEUTRAL /
+  5 NEGATIVE. NEUTRAL accuracy 0/2, an almost meaningless statistic at only 2 examples,
+  exactly the problem balanced sampling exists to fix.
+- Balanced (50/50/50, seed 42): overall agreement drops to **0.7333**, POSITIVE 0.96,
+  NEGATIVE 0.96, but **NEUTRAL only 0.28**. Balanced confusion matrix's NEUTRAL row: 4
+  POSITIVE, 14 NEUTRAL (correct), 32 NEGATIVE. A strong, real 32:1 asymmetry toward
+  3-star reviews being called NEGATIVE rather than the reverse (only 1 of 50 genuine
+  NEGATIVE reviews was called NEUTRAL).
+- This happens to align with the assignment's own hinted scenario. Reported as-is per
+  Guardrail 11, not smoothed over or suppressed, and independently verified below as a
+  genuine finding, not an anchored one.
+
+**QA gate (full mode, genuinely separate subagents via the `Explore` workaround):**
+- **QA Agent pass:** independently recomputed every number (overall agreement, per-class
+  accuracy, full confusion matrix, class balance) directly from both results files for
+  both the imbalanced and balanced runs: exact match on every figure. Independently
+  re-ran the balanced sampler against the real dataset with seed 42 and confirmed the
+  exact same 150 line indices as what's in the saved file, genuine seed reproducibility,
+  not just a recorded seed value. Exhaustively (not sample-checked) verified the
+  three-class boundary rule against all 250 real scored rows: 0 mismatches. Full test
+  suite: 102/102 pass.
+- **Red Team Agent pass (Opus 5, the anchoring check):** independently built the
+  confusion matrix from raw data before reading the summary. Confirmed the 32:1
+  NEUTRAL-to-NEGATIVE asymmetry directly. Verified the finding is not anchored: the
+  answer key is a fixed pre-committed rule with rating never reaching the model payload,
+  the sample is deterministically reproducible from seed 42 (so it could not have been
+  cherry-picked), the `match` field is internally consistent on all 150 rows, and the
+  raw model responses are only 3 distinct strings across the whole run (consistent with
+  a clean deterministic pass, no hand-edited cells). Spot-checked 3 individual NEUTRAL
+  reviews the model called NEGATIVE: found the model's calls genuinely defensible on
+  direct reading, not an obvious misfire, i.e. the underlying phenomenon (3-star reviews
+  often read as complaints with a moderated rating) is real, not a model defect.
+  **Caveat flagged for the Step 8 report:** this seed-42 balanced POSITIVE sample happens
+  to contain zero 4-star reviews (all 50 are 5-star, a plausible ~7.9% chance event,
+  confirmed genuine via independent seed reproduction, not tampering), meaning the
+  reported 96% POSITIVE accuracy is measured on the easiest end of that class and the
+  POSITIVE/NEUTRAL (4-star vs 3-star) boundary is essentially untested by this sample.
+
+**Settings used this session:** model `cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit`,
+`temperature: 0`, `enable_thinking: false`, sampling seed `42`.
+
+**Classification-endpoint call count this session:** 250 (100 imbalanced re-score + 150
+balanced sample), matching the confirmed (corrected) ceiling exactly.
+
+**What's left for next session:** get go-ahead on the Step 6 QA gate, commit and push,
+then Step 7 (descriptive and prediction visualizations), lean mode with Builder/Frontend
+self-check, per PLAN.md Section 12.

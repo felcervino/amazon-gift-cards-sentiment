@@ -1,0 +1,107 @@
+{
+  "imbalanced": {
+    "batch_description": "first 100 reviews in file order, same set as Steps 2 and 5",
+    "class_balance": {
+      "POSITIVE": 93,
+      "NEUTRAL": 2,
+      "NEGATIVE": 5
+    },
+    "overall_agreement": {
+      "n_valid": 100,
+      "n_match": 96,
+      "rate": 0.96
+    },
+    "per_class_accuracy": {
+      "POSITIVE": {
+        "n": 93,
+        "n_correct": 91,
+        "accuracy": 0.978494623655914
+      },
+      "NEUTRAL": {
+        "n": 2,
+        "n_correct": 0,
+        "accuracy": 0.0
+      },
+      "NEGATIVE": {
+        "n": 5,
+        "n_correct": 5,
+        "accuracy": 1.0
+      }
+    },
+    "confusion_matrix": {
+      "POSITIVE": {
+        "POSITIVE": 91,
+        "NEUTRAL": 0,
+        "NEGATIVE": 2
+      },
+      "NEUTRAL": {
+        "POSITIVE": 1,
+        "NEUTRAL": 0,
+        "NEGATIVE": 1
+      },
+      "NEGATIVE": {
+        "POSITIVE": 0,
+        "NEUTRAL": 0,
+        "NEGATIVE": 5
+      }
+    }
+  },
+  "balanced": {
+    "batch_description": "~50 per class, fixed seed 42, drawn from the whole file",
+    "seed": 42,
+    "n_per_class_requested": 50,
+    "pool_sizes_in_full_dataset": {
+      "POSITIVE": 134940,
+      "NEUTRAL": 3271,
+      "NEGATIVE": 14199
+    },
+    "class_balance": {
+      "POSITIVE": 50,
+      "NEUTRAL": 50,
+      "NEGATIVE": 50
+    },
+    "overall_agreement": {
+      "n_valid": 150,
+      "n_match": 110,
+      "rate": 0.7333333333333333
+    },
+    "per_class_accuracy": {
+      "POSITIVE": {
+        "n": 50,
+        "n_correct": 48,
+        "accuracy": 0.96
+      },
+      "NEUTRAL": {
+        "n": 50,
+        "n_correct": 14,
+        "accuracy": 0.28
+      },
+      "NEGATIVE": {
+        "n": 50,
+        "n_correct": 48,
+        "accuracy": 0.96
+      }
+    },
+    "confusion_matrix": {
+      "POSITIVE": {
+        "POSITIVE": 48,
+        "NEUTRAL": 1,
+        "NEGATIVE": 1
+      },
+      "NEUTRAL": {
+        "POSITIVE": 4,
+        "NEUTRAL": 14,
+        "NEGATIVE": 32
+      },
+      "NEGATIVE": {
+        "POSITIVE": 1,
+        "NEUTRAL": 1,
+        "NEGATIVE": 48
+      }
+    }
+  },
+  "new_endpoint_calls_this_run": 250,
+  "model": "cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit",
+  "temperature": 0,
+  "enable_thinking": false
+}
