@@ -619,5 +619,42 @@ conclusions are in his own words before this step is marked done.
 **Step 8 QA gate: passed, go-ahead given.** Committed and pushed
 (`553e228`, "Step 8: full README report, dashboard screenshot, plan docs").
 
-**What's left:** Step 9 (final GitHub verification and handoff), full mode with
-Verification Agent, per PLAN.md Section 14.
+---
+
+## Session 9
+
+**Steps worked on:** Step 9 (final GitHub verification and handoff).
+
+**Self-check before dispatching Verification Agent:** searched the full git history
+(`git log --all -p`) for hardcoded API key patterns, found only the legitimate
+`os.environ.get("DOBOLYI_API_KEY")` reads, never a literal key value. Confirmed via
+`git rev-list --objects --all` that no `.jsonl.gz` or `nrc_lexicon/` path was ever
+tracked, and that no unexpectedly large blob (nothing near the ~12MB dataset size) ever
+entered history. Confirmed `.gitignore` contents cover the venv, pycache, `.env`, the
+dataset file, and the NRC lexicon directory. Visually confirmed in a real browser
+(logged out, "Sign in" visible, not this session's own possible residual auth) that the
+live README renders correctly on GitHub with the dashboard screenshot actually loading.
+
+**Verification Agent pass (full mode, genuinely named subagent):** independently
+re-ran the same secret/large-blob history scan and confirmed no matches. Cross-checked
+the README's "File inventory" section against the authoritative `git ls-files` tracked
+list (not a raw directory listing, which would have included gitignored files): every
+claimed file present, nothing extra, no stray secrets, no `data/` directory tracked at
+all. Reviewed the full commit history (16 commits) and characterized it as genuine
+incremental progress, one substantive commit per step plus a paired log-close-out
+commit each time, specific messages throughout, no single dump commit at the end. Found
+one item: `RUNNING_LOG.md` had an uncommitted local change at the moment of the check
+(this session's own in-progress Step 8 close-out entry), meaning the working tree did
+not exactly match `origin/main` at that instant. Committed and pushed immediately after
+(`5401b3c`), working tree confirmed clean and matching origin/main afterward.
+
+**Non-delegable check (per PLAN.md Section 14):** a fetch from this same session could
+succeed on residual local auth even if public visibility were actually broken. Felipe
+needs to open the repo link himself in an incognito window (or a device not logged into
+GitHub) and confirm it renders, before this step is marked done.
+
+**Classification-endpoint call count this session:** 0.
+
+**What's left:** Felipe's incognito-window visibility confirmation, then the final
+shareable link is handed off for Canvas submission (done manually by Felipe, not by any
+agent).
