@@ -695,6 +695,82 @@ re-run (still passes) after the change, since dashboard-generation code was touc
 **Classification-endpoint call count:** 0 (pure UI change, no new model calls, no
 change to any saved output file).
 
+---
+
+## Post-submission dashboard revision, round 2: full QA/Red Team/Frontend pass
+
+Felipe asked for a full QA, Red Team, and Frontend usability/layout pass on the reorder
+and modal from the round-1 revision above. Dispatched all three as genuinely separate,
+now-properly-named subagents (`qa-agent`, `red-team-agent`, `frontend-agent`), in
+parallel.
+
+**QA Agent:** confirmed the section order structurally, traced the modal's data-binding
+logic line by line (no stale-closure bug: `forEach`'s per-call function scope gives each
+row's click listener its own `r` binding, not the classic shared-`var` bug), confirmed
+the embedded review data is byte-identical before/after the change (SHA-256 hash
+matched, this was a UI-only change), re-ran the full test suite and XSS check
+independently. One real finding: the README's dashboard screenshot had gone stale, its
+visible caption text no longer matched the current page copy.
+
+**Red Team Agent:** tried to break the XSS defense specifically through the modal's new
+code, including `raw_model_response`, a field never exposed to the DOM before this
+change and notably not run through `decodeEntities` (confirmed this is a cosmetic-only
+gap, not a security one, since it is still only ever assigned via `textContent`). Ran
+adversarial payloads through the actual `render_dashboard()` pipeline targeting the
+modal's specific DOM contexts (h3 title, pre blocks, chip className). No way found to
+leak unescaped content. One minor robustness note: `record.field || fallback` could
+show a literal `"undefined"` string if a field key were entirely absent from a record
+rather than explicitly null; not reachable in the current pipeline (every real record
+always has these keys), but flagged as worth hardening.
+
+**Frontend Agent:** a genuine, significant finding: the review table rows were plain
+`<tr>` elements with only a click listener, no `tabindex`, no `role`, no keydown
+handler, meaning the entire modal feature was completely unreachable by keyboard. Also
+flagged: no focus trap inside the modal (Shift+Tab from the close button could escape
+to the dimmed footer citation link behind the backdrop), the close button could scroll
+out of view on a short mobile viewport since it was `position: absolute` inside a
+scrolling container, a borderline contrast ratio (~3.2:1) on the prediction-direction
+arrow glyph, a close-button touch target on the small side of comfortable (32px), and a
+content gap: after the reorder, nothing near the "Every review" table reminded a reader
+it had scrolled back to the original binary 100-row batch after an intervening section
+about a different, three-class, 150-row sample.
+
+**Fixes applied for every substantive finding, all independently self-verified in a
+live browser afterward (not just reasoning through the CSS):**
+- Rows now have `tabindex="0"`, `role="button"`, a descriptive `aria-label`, and a
+  keydown handler for Enter/Space, plus a `:focus-visible` style matching the existing
+  hover treatment. Confirmed live: focusing a row and pressing Enter opens the modal.
+- A real focus trap: a `Tab`/`Shift+Tab` keydown handler on the document (while the
+  modal is open) cycles focus only among the panel's own focusable elements, `wrap`ping
+  at the ends. Confirmed live: both Tab and Shift+Tab from the close button (currently
+  the panel's only focusable element) stay trapped on it, `preventDefault()` confirmed
+  firing, never escaping to the footer link.
+- Restructured `.modal-panel` to a flex column with a non-scrolling header
+  (`flex-shrink: 0`) and only `.modal-body` scrolling. Confirmed live: scrolling the
+  body to its maximum leaves the close button's bounding-box position completely
+  unchanged.
+- `.modal-arrow` recolored from `--text-faint` (~3.2:1) to `--text-muted` (~6.2:1).
+- `.modal-close` bumped from 32px to 36px. Confirmed live at a 375px viewport: renders
+  at ~35x35px.
+- Added one sentence to the table section's own note clarifying it's back to the
+  original binary batch, not the three-class sample just above it.
+- Applied the same `field != null ? field : fallback` hardening Red Team suggested to
+  both the modal's chips and the main table's chips (previously `||`), removing the
+  theoretical literal-`"undefined"` display gap everywhere it could occur, not just
+  where currently reachable.
+- Did not change the one cosmetic-only nit (the "All mismatches" heading's inline style
+  duplicating `h3.subhead`'s look): the two contexts have different spacing/border
+  needs, so a class swap would have caused a visual regression for a non-functional
+  issue; consciously left as-is.
+- Re-captured the dashboard screenshot (the round-1 fix already regenerated it once;
+  QA's finding meant it needed a second, final re-capture reflecting the reorder).
+
+Full test suite (102/102) and XSS static check re-run and passing after every change in
+this round.
+
+**Classification-endpoint call count:** 0 (pure UI/accessibility fixes, no new model
+calls, no change to any saved output file).
+
 **What's left:** nothing on the agent side. Felipe pastes the repo link below into the
 Canvas submission for MBAX 6418 Assignment 1.
 

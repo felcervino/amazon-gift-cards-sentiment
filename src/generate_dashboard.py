@@ -540,14 +540,24 @@ table.reviews tbody tr {
 table.reviews tbody tr:last-child { border-bottom: none; }
 table.reviews tbody tr:hover { background: var(--surface-alt); }
 
-/* Left rule: an accent bar on hover, a standing red bar on every mismatch, so a
+/* Keyboard focus gets the same treatment as hover, since each row is now a real
+   keyboard-operable control (tabindex + role="button" + Enter/Space handler), plus its
+   own inset outline (an outer outline on a table row draws oddly against the border). */
+table.reviews tbody tr:focus-visible {
+  background: var(--surface-alt);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* Left rule: an accent bar on hover/focus, a standing red bar on every mismatch, so a
    wrong row is legible structurally and not only by its background tint. */
 table.reviews tbody tr > td:first-child {
   box-shadow: inset 3px 0 0 transparent;
   transition: box-shadow var(--dur) var(--ease);
 }
 
-table.reviews tbody tr:hover > td:first-child {
+table.reviews tbody tr:hover > td:first-child,
+table.reviews tbody tr:focus-visible > td:first-child {
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
@@ -625,15 +635,21 @@ table.reviews tbody tr.row-mismatch td.col-match {
   to { opacity: 1; }
 }
 
+/* Flex column so .modal-header (with the close button) never scrolls out of view, only
+   .modal-body does. A previous version scrolled the whole panel as one box, which let an
+   absolutely-positioned close button scroll away with the content on a short viewport,
+   leaving a touch-only user with no visible way to dismiss without scrolling back up. */
 .modal-panel {
   position: relative;
+  display: flex;
+  flex-direction: column;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
   width: min(720px, 100%);
   max-height: min(720px, 88vh);
-  overflow-y: auto;
+  overflow: hidden;
   animation: modal-panel-in 180ms var(--ease);
 }
 
@@ -646,8 +662,8 @@ table.reviews tbody tr.row-mismatch td.col-match {
   position: absolute;
   top: 14px;
   right: 14px;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -664,6 +680,8 @@ table.reviews tbody tr.row-mismatch td.col-match {
 .modal-close:hover { background: var(--surface-alt); color: var(--text); }
 
 .modal-header {
+  position: relative;
+  flex-shrink: 0;
   padding: 28px 56px 20px 28px;
   border-bottom: 1px solid var(--border);
 }
@@ -682,7 +700,10 @@ table.reviews tbody tr.row-mismatch td.col-match {
   color: var(--accent);
 }
 
-.modal-arrow { color: var(--text-faint); font-size: 13px; }
+/* --text-faint reads at ~3.2:1 on white, short of the 4.5:1 text-contrast bar; this
+   arrow carries real information (it shows prediction direction), not just decoration,
+   so it uses --text-muted (~6.2:1) instead. */
+.modal-arrow { color: var(--text-muted); font-size: 13px; }
 
 .modal-match { font-size: 15px; margin-left: 2px; }
 
@@ -699,6 +720,7 @@ table.reviews tbody tr.row-mismatch td.col-match {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px;
+  overflow-y: auto;
 }
 
 .modal-field h4 {
@@ -1099,7 +1121,9 @@ footer code {
 
   <section id="table-section">
     <h2>Every review</h2>
-    <p class="section-note">Click a row to open its full detail.</p>
+    <p class="section-note">Back to the first 100 reviews from the top of the page (the
+      binary run), not the three-class balanced sample above. Click a row to open its
+      full detail.</p>
     <div class="table-controls">
       <input type="search" id="search-box" placeholder="Search title or text...">
       <div class="filter-group" id="match-filter" role="group" aria-label="Filter by match status">
@@ -1331,6 +1355,15 @@ footer code {
       var tr = document.createElement("tr");
       if (r.match === false) tr.className = "row-mismatch";
 
+      // Keyboard accessibility: a <tr> is not natively focusable or interactive, so a
+      // click-only listener would make every row (and the whole modal feature) mouse-only.
+      // tabindex/role/aria-label plus an Enter/Space handler make each row a real
+      // keyboard-operable control, on top of the existing click handler.
+      tr.tabIndex = 0;
+      tr.setAttribute("role", "button");
+      var rowTitle = decodeEntities(r.title) || "(no title)";
+      tr.setAttribute("aria-label", "View detail for review: " + rowTitle);
+
       var tdRating = document.createElement("td");
       tdRating.className = "col-rating";
       tdRating.textContent = r.rating != null ? r.rating + " star" + (r.rating === 1 ? "" : "s") : "n/a";
@@ -1338,7 +1371,7 @@ footer code {
 
       var tdTitle = document.createElement("td");
       tdTitle.className = "col-title";
-      tdTitle.textContent = decodeEntities(r.title) || "(no title)";
+      tdTitle.textContent = rowTitle;
       tr.appendChild(tdTitle);
 
       var tdText = document.createElement("td");
@@ -1349,14 +1382,14 @@ footer code {
       var tdAnswer = document.createElement("td");
       var answerChip = document.createElement("span");
       answerChip.className = "chip " + (r.answer_key_label === "POSITIVE" ? "positive" : "negative");
-      answerChip.textContent = r.answer_key_label || r.answer_key_status;
+      answerChip.textContent = r.answer_key_label != null ? r.answer_key_label : (r.answer_key_status || "");
       tdAnswer.appendChild(answerChip);
       tr.appendChild(tdAnswer);
 
       var tdModel = document.createElement("td");
       var modelChip = document.createElement("span");
       modelChip.className = "chip " + (r.parsed_label === "POSITIVE" ? "positive" : "negative");
-      modelChip.textContent = r.parsed_label || r.parsed_status;
+      modelChip.textContent = r.parsed_label != null ? r.parsed_label : (r.parsed_status || "");
       tdModel.appendChild(modelChip);
       tr.appendChild(tdModel);
 
@@ -1366,6 +1399,12 @@ footer code {
       tr.appendChild(tdMatch);
 
       tr.addEventListener("click", function () { openReviewModal(r); });
+      tr.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+          e.preventDefault(); // stop Space from scrolling the page
+          openReviewModal(r);
+        }
+      });
       tbodyEl.appendChild(tr);
     });
 
@@ -1388,11 +1427,11 @@ footer code {
 
     var answerChip = document.getElementById("modal-answer-chip");
     answerChip.className = "chip " + (record.answer_key_label === "POSITIVE" ? "positive" : "negative");
-    answerChip.textContent = record.answer_key_label || record.answer_key_status;
+    answerChip.textContent = record.answer_key_label != null ? record.answer_key_label : (record.answer_key_status || "");
 
     var modelChip = document.getElementById("modal-model-chip");
     modelChip.className = "chip " + (record.parsed_label === "POSITIVE" ? "positive" : "negative");
-    modelChip.textContent = record.parsed_label || record.parsed_status;
+    modelChip.textContent = record.parsed_label != null ? record.parsed_label : (record.parsed_status || "");
 
     document.getElementById("modal-match").textContent =
       record.match === true ? "✓" : (record.match === false ? "✗" : "");
@@ -1418,8 +1457,38 @@ footer code {
   modalBackdrop.addEventListener("click", function (e) {
     if (e.target === modalBackdrop) closeReviewModal();
   });
+
+  var FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && !modalBackdrop.hidden) closeReviewModal();
+    if (modalBackdrop.hidden) return;
+
+    if (e.key === "Escape") {
+      closeReviewModal();
+      return;
+    }
+
+    // Focus trap: aria-modal="true" claims background content is inert while open, but
+    // nothing enforces that on its own. Without this, Shift+Tab from the close button
+    // (the panel's only focusable element besides link/content that isn't interactive)
+    // would move to whatever precedes .modal-backdrop in DOM order, the footer's citation
+    // link sitting dimmed behind the backdrop, letting a keyboard user Tab straight out of
+    // an ostensibly modal dialog. Cycle Tab/Shift+Tab only among elements inside the panel.
+    if (e.key === "Tab") {
+      var panel = document.getElementById("review-modal-panel");
+      var focusable = Array.prototype.slice.call(panel.querySelectorAll(FOCUSABLE_SELECTOR));
+      if (focusable.length === 0) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
   });
 
   searchBox.addEventListener("input", function () { renderTable(searchBox.value); });
