@@ -508,6 +508,8 @@ single step.
 **Classification-endpoint call count this session:** 250 (100 imbalanced re-score + 150
 balanced sample), matching the confirmed (corrected) ceiling exactly.
 
-**What's left for next session:** get go-ahead on the Step 6 QA gate, commit and push,
-then Step 7 (descriptive and prediction visualizations), lean mode with Builder/Frontend
-self-check, per PLAN.md Section 12.
+**Step 6 QA gate: passed, go-ahead given.** Committed and pushed
+(`fb879fd`, "Step 6: three-class scoring, balanced vs imbalanced, QA and Red Team verified").
+
+**What's left for next session:** Step 7 (descriptive and prediction visualizations),
+lean mode with Builder/Frontend self-check, per PLAN.md Section 12.
