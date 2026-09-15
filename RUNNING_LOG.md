@@ -616,5 +616,8 @@ conclusions are in his own words before this step is marked done.
 
 **Classification-endpoint call count this session:** 0 (report writing only).
 
-**What's left:** Felipe's personal review of README.md, any requested changes, then
-commit and push, then Step 9 (final GitHub verification and handoff).
+**Step 8 QA gate: passed, go-ahead given.** Committed and pushed
+(`553e228`, "Step 8: full README report, dashboard screenshot, plan docs").
+
+**What's left:** Step 9 (final GitHub verification and handoff), full mode with
+Verification Agent, per PLAN.md Section 14.
