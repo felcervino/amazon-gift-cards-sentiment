@@ -575,6 +575,46 @@ real invocable subagent types by this harness, resolving the Session 2 finding t
 required the `Explore`-plus-inline-role-prompt workaround. Full-mode checks from Step 8
 onward will use the genuinely named agents directly.
 
-**What's left for next session:** Step 8 (report/README.md and final deliverables),
-full mode with Verification Agent checking, plus Felipe's own non-delegable personal
-review and rewrite of the narrative, per PLAN.md Section 13.
+---
+
+## Session 8
+
+**Steps worked on:** Step 8 (report/README.md and final deliverables), in progress.
+
+**Open questions asked and how answered:**
+- Whether PLAN.md/START_PROMPT.md belong in the public repo: confirmed yes, include
+  them, since they demonstrate the process rigor transparently.
+
+**Built:**
+- [README.md](README.md): full draft. Every number cited inline to its source file.
+  Screenshot captured via headless Edge (`dashboard/screenshots/dashboard_overview.png`,
+  137,513 bytes) since the Browser pane's own screenshots aren't directly saveable as
+  files; a second, more targeted Step-7-charts screenshot was attempted but proved
+  unreliable to capture cleanly with the available tooling and was dropped rather than
+  shipped broken. Answers all four required questions with evidence pointing to saved
+  files. Cites the Amazon Reviews '23 dataset and its page.
+
+**Verification Agent pass (full mode, now using the genuinely named subagent, no longer
+the `Explore` workaround):** traced every number in the README to its source file,
+exact match throughout, including the two flagged Step 5 disagreement examples
+(review_id 4 and 63, both label and title matched exactly) and an independent recompute
+of the ~7.9% chance-event probability cited in the Q2 caveat. Confirmed the dataset
+citation is present and correctly linked. Confirmed every file in the "File inventory"
+section exists. Flagged two minor items, not correctness problems: 4 early utility
+scripts (`parse_check.py`, `smoke_test.py`, `dump_sample_reviews.py`, `spot_check.py`)
+weren't mentioned in the README (now added, see above), and the screenshot directory
+wasn't yet committed (expected, pending this step's go-ahead). Confirmed the screenshot
+file itself is a valid, non-trivial PNG. Confirmed `requirements.txt` and the "How to
+run it" script order match real files exactly.
+
+**Self-check:** independently recomputed the ~7.9% probability figure myself before the
+Verification Agent's pass, matching exactly.
+
+**Non-delegable step:** per PLAN.md Section 13, this step cannot be signed off by any
+agent. Felipe must personally reread the full README draft and confirm the framing and
+conclusions are in his own words before this step is marked done.
+
+**Classification-endpoint call count this session:** 0 (report writing only).
+
+**What's left:** Felipe's personal review of README.md, any requested changes, then
+commit and push, then Step 9 (final GitHub verification and handoff).
