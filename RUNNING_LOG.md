@@ -665,5 +665,37 @@ genuinely could not do on its own.
 (done manually by Felipe, not by any agent):
 https://github.com/felcervino/amazon-gift-cards-sentiment
 
-**What's left:** nothing on the agent side. Felipe pastes the link above into the Canvas
-submission for MBAX 6418 Assignment 1.
+---
+
+## Post-submission dashboard revision
+
+Felipe reviewed the dashboard directly (published as a private Claude Artifact for live
+QA, same file as the repo's `dashboard/dashboard.html`) and requested two changes:
+
+1. Move the "Three-class balanced results" section (Step 7's charts) to appear before
+   the full "Every review" table, for a better overview-first flow. Confirmed and done:
+   simple section reorder in [src/generate_dashboard.py](src/generate_dashboard.py).
+2. Replace the inline expand-below-the-row detail view with a proper modal/overlay
+   panel. Clarified first that a true separate page/URL isn't possible (the dashboard is
+   required to stay a single self-contained HTML file), confirmed a modal was the right
+   interpretation. Implemented: a centered modal on desktop, a bottom-sheet style at
+   narrow widths, closable via an X button, the Escape key, or a backdrop click (but not
+   a click inside the panel itself, verified). All fields still assigned via
+   `textContent` only, same XSS-safe discipline as before, nothing about the security
+   model changed.
+
+Self-checked directly in a live browser rather than just reasoning through the CSS:
+confirmed the new section order via DOM query, confirmed the modal opens with the
+correct record's data, confirmed all three close mechanisms work and body scroll-lock
+releases correctly afterward, confirmed clicking inside the panel does not close it,
+and confirmed the responsive behavior (bottom sheet vs centered modal) at both mobile
+and desktop widths. Full test suite re-run (102/102 pass) and the XSS static check
+re-run (still passes) after the change, since dashboard-generation code was touched.
+
+**Classification-endpoint call count:** 0 (pure UI change, no new model calls, no
+change to any saved output file).
+
+**What's left:** nothing on the agent side. Felipe pastes the repo link below into the
+Canvas submission for MBAX 6418 Assignment 1.
+
+https://github.com/felcervino/amazon-gift-cards-sentiment

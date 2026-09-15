@@ -540,30 +540,105 @@ table.reviews tbody tr.row-mismatch td.col-match {
   font-weight: 700;
 }
 
-/* ---------- Expanded detail row ---------- */
+/* ---------- Review detail modal ---------- */
 
-.detail-row > td {
-  background: var(--surface-sunken);
-  padding: 18px 20px;
-  font-size: 13px;
-  box-shadow: inset 3px 0 0 var(--accent), inset 0 1px 0 var(--border);
-  /* No fill-mode: the resting style must be the visible one, so the panel still shows
-     in any context that does not run CSS animations (print, snapshot renderers). */
-  animation: detail-in 180ms var(--ease);
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 36, 27, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+  animation: modal-backdrop-in 160ms var(--ease);
 }
 
-@keyframes detail-in {
-  from { opacity: 0; transform: translateY(-3px); }
+.modal-backdrop[hidden] { display: none; }
+
+@keyframes modal-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-panel {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  width: min(720px, 100%);
+  max-height: min(720px, 88vh);
+  overflow-y: auto;
+  animation: modal-panel-in 180ms var(--ease);
+}
+
+@keyframes modal-panel-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
   to { opacity: 1; transform: none; }
 }
 
-.detail-grid {
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.modal-close:hover { background: var(--surface-alt); color: var(--text); }
+
+.modal-header {
+  padding: 28px 56px 20px 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.modal-rating {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.modal-arrow { color: var(--text-faint); font-size: 13px; }
+
+.modal-match { font-size: 15px; margin-left: 2px; }
+
+.modal-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.modal-body {
+  padding: 24px 28px 28px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px;
 }
 
-.detail-grid h4 {
+.modal-field h4 {
   margin: 0 0 8px;
   font-size: 10.5px;
   text-transform: uppercase;
@@ -572,18 +647,17 @@ table.reviews tbody tr.row-mismatch td.col-match {
   color: var(--text-muted);
 }
 
-.detail-grid pre {
+.modal-field pre {
   white-space: pre-wrap;
   word-break: break-word;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 12.5px;
   line-height: 1.6;
-  background: var(--surface);
+  background: var(--surface-sunken);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
   margin: 0;
-  box-shadow: var(--shadow-sm);
 }
 
 /* ---------- Step 7: descriptive/prediction bar charts ---------- */
@@ -864,7 +938,10 @@ footer code {
   table.confusion thead th, table.confusion tbody th { letter-spacing: 0.03em; }
   .stat-card .stat-value { font-size: 30px; }
   td.col-text, th.col-text { display: none; }
-  .detail-grid { grid-template-columns: 1fr; }
+  .modal-body { grid-template-columns: 1fr; padding: 20px; }
+  .modal-header { padding: 22px 48px 16px 20px; }
+  .modal-backdrop { padding: 0; align-items: flex-end; }
+  .modal-panel { width: 100%; max-height: 92vh; border-radius: var(--radius) var(--radius) 0 0; }
   .table-controls input[type="search"] { min-width: 0; flex: 1 1 200px; }
   h3.subhead { font-size: 16px; margin-top: 32px; padding-top: 22px; }
   h3.subhead:first-of-type { margin-top: 24px; }
@@ -933,9 +1010,33 @@ footer code {
     </div>
   </section>
 
+  <section id="descriptive-section">
+    <h2>Three-class balanced results</h2>
+    <p class="section-note">A separate run (Steps 5 and 6): the answer key redefined to
+      three classes (POSITIVE, NEUTRAL, NEGATIVE), scored on a fixed-seed sample of
+      ~50 reviews per class drawn from the whole dataset, not just the first 100. Numbers
+      below are computed live from the embedded balanced-run records, separate from the
+      binary results above.</p>
+
+    <h3 class="subhead">Star-rating distribution, full dataset</h3>
+    <p class="section-note">How skewed the underlying data actually is, across all
+      reviews, not just the sampled batches above.</p>
+    <div class="bar-chart" id="rating-distribution-chart"></div>
+
+    <h3 class="subhead">Correct answer vs. model prediction, per class</h3>
+    <p class="section-note">For each actual class (by rating), how the model's
+      predictions broke down. The balanced confusion matrix, as stacked bars.</p>
+    <div class="stacked-bar-group" id="prediction-breakdown-chart"></div>
+
+    <h3 class="subhead">Per-class "answered right" rate</h3>
+    <p class="section-note">The point of this step: made visible at a glance, without
+      drilling into a table.</p>
+    <div class="bar-chart" id="per-class-accuracy-chart"></div>
+  </section>
+
   <section id="table-section">
     <h2>Every review</h2>
-    <p class="section-note">Click a row to see the full text and the model's raw response.</p>
+    <p class="section-note">Click a row to open its full detail.</p>
     <div class="table-controls">
       <input type="search" id="search-box" placeholder="Search title or text...">
       <div class="filter-group" id="match-filter" role="group" aria-label="Filter by match status">
@@ -962,30 +1063,6 @@ footer code {
     </div>
   </section>
 
-  <section id="descriptive-section">
-    <h2>Three-class balanced results</h2>
-    <p class="section-note">A separate run (Steps 5 and 6): the answer key redefined to
-      three classes (POSITIVE, NEUTRAL, NEGATIVE), scored on a fixed-seed sample of
-      ~50 reviews per class drawn from the whole dataset, not just the first 100. Numbers
-      below are computed live from the embedded balanced-run records, separate from the
-      binary results above.</p>
-
-    <h3 class="subhead">Star-rating distribution, full dataset</h3>
-    <p class="section-note">How skewed the underlying data actually is, across all
-      reviews, not just the sampled batches above.</p>
-    <div class="bar-chart" id="rating-distribution-chart"></div>
-
-    <h3 class="subhead">Correct answer vs. model prediction, per class</h3>
-    <p class="section-note">For each actual class (by rating), how the model's
-      predictions broke down. The balanced confusion matrix, as stacked bars.</p>
-    <div class="stacked-bar-group" id="prediction-breakdown-chart"></div>
-
-    <h3 class="subhead">Per-class "answered right" rate</h3>
-    <p class="section-note">The point of this step: made visible at a glance, without
-      drilling into a table.</p>
-    <div class="bar-chart" id="per-class-accuracy-chart"></div>
-  </section>
-
   <footer>
     <p>Data: Amazon Reviews '23 (Gift Cards category), McAuley Lab, UC San Diego.
       <a href="https://amazon-reviews-2023.github.io" target="_blank" rel="noopener">amazon-reviews-2023.github.io</a>.
@@ -993,6 +1070,32 @@ footer code {
       in this file, generated from <code>output/step2_results.json</code> and
       <code>output/step6_balanced_results.json</code>.</p>
   </footer>
+</div>
+
+<div class="modal-backdrop" id="review-modal-backdrop" hidden>
+  <div class="modal-panel" id="review-modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button type="button" class="modal-close" id="modal-close-btn" aria-label="Close">&times;</button>
+    <div class="modal-header">
+      <div class="modal-header-top">
+        <span class="modal-rating" id="modal-rating"></span>
+        <span class="chip" id="modal-answer-chip"></span>
+        <span class="modal-arrow">&rarr;</span>
+        <span class="chip" id="modal-model-chip"></span>
+        <span class="modal-match" id="modal-match"></span>
+      </div>
+      <h3 class="modal-title" id="modal-title"></h3>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <h4>Full review text</h4>
+        <pre id="modal-text"></pre>
+      </div>
+      <div class="modal-field">
+        <h4>Raw model response</h4>
+        <pre id="modal-raw-response"></pre>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script id="review-data" type="application/json">[{"review_id": 999999, "title": "\u003cscript\u003ewindow.__xss_fired = true;\u003c/script\u003e", "text": "\"\u003e\u003cimg src=x onerror=window.__xss_fired=true\u003eraw quote \" and angle brackets \u003c \u003e and \u003c/script\u003e tag-close attempt \u003csvg onload=window.__xss_fired=true\u003e", "rating": 1.0, "answer_key_status": "ok", "answer_key_label": "NEGATIVE", "answer_key_error": null, "raw_model_response": "{\"label\": \"NEGATIVE\"}", "parsed_status": "ok", "parsed_label": "NEGATIVE", "parsed_error": null, "match": true}]</script>
@@ -1199,7 +1302,7 @@ footer code {
       tdMatch.textContent = r.match === true ? "✓" : (r.match === false ? "✗" : "-");
       tr.appendChild(tdMatch);
 
-      tr.addEventListener("click", function () { toggleDetail(tr, r); });
+      tr.addEventListener("click", function () { openReviewModal(r); });
       tbodyEl.appendChild(tr);
     });
 
@@ -1208,39 +1311,53 @@ footer code {
   }
   window.__renderTableForSelfCheck = renderTable;
 
-  function toggleDetail(tr, record) {
-    var next = tr.nextElementSibling;
-    if (next && next.classList.contains("detail-row")) {
-      next.remove();
-      return;
-    }
-    var existingDetail = document.querySelector(".detail-row");
-    if (existingDetail) existingDetail.remove();
+  // Review detail modal. Every field derived from untrusted review data is assigned via
+  // textContent, same discipline as the table itself, so it can never execute as markup.
+  var modalBackdrop = document.getElementById("review-modal-backdrop");
+  var modalCloseBtn = document.getElementById("modal-close-btn");
+  var lastFocusedBeforeModal = null;
 
-    var detailRow = document.createElement("tr");
-    detailRow.className = "detail-row";
-    var td = document.createElement("td");
-    td.colSpan = 6;
+  function openReviewModal(record) {
+    lastFocusedBeforeModal = document.activeElement;
 
-    var grid = document.createElement("div");
-    grid.className = "detail-grid";
+    document.getElementById("modal-rating").textContent =
+      record.rating != null ? record.rating + " star" + (record.rating === 1 ? "" : "s") : "n/a";
 
-    var textBlock = document.createElement("div");
-    var textHeader = document.createElement("h4"); textHeader.textContent = "Full review text";
-    var textPre = document.createElement("pre"); textPre.textContent = decodeEntities(record.text) || "";
-    textBlock.appendChild(textHeader); textBlock.appendChild(textPre);
+    var answerChip = document.getElementById("modal-answer-chip");
+    answerChip.className = "chip " + (record.answer_key_label === "POSITIVE" ? "positive" : "negative");
+    answerChip.textContent = record.answer_key_label || record.answer_key_status;
 
-    var respBlock = document.createElement("div");
-    var respHeader = document.createElement("h4"); respHeader.textContent = "Raw model response";
-    var respPre = document.createElement("pre"); respPre.textContent = record.raw_model_response || "";
-    respBlock.appendChild(respHeader); respBlock.appendChild(respPre);
+    var modelChip = document.getElementById("modal-model-chip");
+    modelChip.className = "chip " + (record.parsed_label === "POSITIVE" ? "positive" : "negative");
+    modelChip.textContent = record.parsed_label || record.parsed_status;
 
-    grid.appendChild(textBlock);
-    grid.appendChild(respBlock);
-    td.appendChild(grid);
-    detailRow.appendChild(td);
-    tr.parentNode.insertBefore(detailRow, tr.nextSibling);
+    document.getElementById("modal-match").textContent =
+      record.match === true ? "✓" : (record.match === false ? "✗" : "");
+
+    document.getElementById("modal-title").textContent = decodeEntities(record.title) || "(no title)";
+    document.getElementById("modal-text").textContent = decodeEntities(record.text) || "";
+    document.getElementById("modal-raw-response").textContent = record.raw_model_response || "";
+
+    modalBackdrop.hidden = false;
+    modalCloseBtn.focus();
+    document.body.style.overflow = "hidden";
   }
+
+  function closeReviewModal() {
+    modalBackdrop.hidden = true;
+    document.body.style.overflow = "";
+    if (lastFocusedBeforeModal && typeof lastFocusedBeforeModal.focus === "function") {
+      lastFocusedBeforeModal.focus();
+    }
+  }
+
+  modalCloseBtn.addEventListener("click", closeReviewModal);
+  modalBackdrop.addEventListener("click", function (e) {
+    if (e.target === modalBackdrop) closeReviewModal();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !modalBackdrop.hidden) closeReviewModal();
+  });
 
   searchBox.addEventListener("input", function () { renderTable(searchBox.value); });
 
