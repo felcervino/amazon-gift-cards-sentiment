@@ -1,5 +1,8 @@
-"""Steps 3 and 4: generate the self-contained results dashboard from Step 2's saved output,
-including Step 4's live match-status filter (all / correct / mismatched) with a live count.
+"""Steps 3, 4, and 7: generate the self-contained results dashboard. Step 3/4 content is
+built from Step 2's saved binary output plus a live match-status filter. Step 7 adds a
+descriptive layer built from Step 6's balanced three-class results and the full dataset's
+rating distribution: a star-rating distribution chart, a correct-vs-predicted breakdown
+per class, and a per-class accuracy chart, all computed client-side.
 
 The raw per-review records from output/step2_results.json are embedded directly into the
 HTML as JSON data. Every statistic shown on the page (agreement rate, per-class accuracy,
@@ -16,6 +19,8 @@ import json
 import os
 
 RESULTS_PATH = os.path.join(os.path.dirname(__file__), "..", "output", "step2_results.json")
+BALANCED_RESULTS_PATH = os.path.join(os.path.dirname(__file__), "..", "output", "step6_balanced_results.json")
+RATING_DISTRIBUTION_PATH = os.path.join(os.path.dirname(__file__), "..", "output", "dataset_rating_distribution.json")
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "dashboard", "dashboard.html")
 
 
@@ -644,6 +649,231 @@ table.reviews tbody tr.row-mismatch td.col-match {
   box-shadow: var(--shadow-sm);
 }
 
+/* ---------- Step 7: descriptive/prediction bar charts ---------- */
+
+/* Subsection headings inside the descriptive section. Deliberately the display serif at
+   400, the same voice as h2 and the "All mismatches" heading, so these read as real
+   subsections of the page rather than a separate widget's own labelling. The hairline
+   above each (suppressed on the first) segments the three chart blocks using the same
+   1px --border rule the hero and footer already use. */
+h3.subhead {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: -0.005em;
+  color: var(--text);
+  margin: 40px 0 5px;
+  padding-top: 26px;
+  border-top: 1px solid var(--border);
+}
+
+h3.subhead:first-of-type {
+  margin-top: 30px;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* Both chart containers take the page's standard card treatment (paper surface, hairline
+   border, --radius, --shadow-md) so they sit in the same plane as the stat cards, the
+   confusion matrix and the review table rather than floating bare on the ground. */
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: 18px 22px;
+}
+
+/* Negative inline margin lets the hover wash bleed into the card's padding without
+   overflowing its border box (padding 22px > 8px). */
+/* The value column is a fixed width, not auto: with `auto` each row sizes its own column
+   to its own text, so every bar track ends up a different length and the bars no longer
+   share a common scale. Fixed + nowrap keeps every track identical and every value on one
+   line (the old 56px track wrapped "128,248 (84.1%)" onto three). */
+.bar-row {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) 96px;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 8px;
+  margin: 0 -8px;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--dur) var(--ease);
+}
+
+.bar-row:hover { background: var(--surface-alt); }
+
+/* Uppercase micro-caps, matching .stat-label and the confusion matrix's axis headers,
+   so chart labels speak the same typographic language as the rest of the page. */
+.bar-row .bar-label-text {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--ls-caps-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  text-align: right;
+  white-space: nowrap;
+  transition: color var(--dur) var(--ease);
+}
+
+.bar-row:hover .bar-label-text { color: var(--text); }
+
+/* min-width: 0 so the 1fr track is free to shrink past its min-content width on a narrow
+   viewport instead of forcing the row (and the page) into horizontal overflow. */
+.bar-track {
+  position: relative;
+  min-width: 0;
+  height: 24px;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: border-color var(--dur) var(--ease);
+}
+
+.bar-row:hover .bar-track { border-color: var(--border-strong); }
+
+/* min-width: 3px is a layout safeguard, not decoration: it keeps a small-but-nonzero bar
+   (e.g. 1,873 of 128,248) from rounding down to an invisible zero-width fill. Do not
+   remove it. */
+.bar-fill {
+  height: 100%;
+  min-width: 3px;
+  border-radius: var(--radius-sm) 2px 2px var(--radius-sm);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: width var(--dur) var(--ease), filter var(--dur) var(--ease);
+}
+
+.bar-row:hover .bar-fill { filter: saturate(1.06) brightness(1.05); }
+
+.bar-fill.tone-positive { background: var(--positive); }
+.bar-fill.tone-negative { background: var(--negative); }
+.bar-fill.tone-neutral { background: var(--accent); }
+
+.bar-value {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.005em;
+  color: var(--text);
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.stacked-bar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: 20px 22px 18px;
+}
+
+/* Same micro-caps as the confusion matrix's "Actually POSITIVE" row headers, which these
+   labels are the chart equivalent of. */
+.stacked-bar-row .stacked-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--ls-caps-tight);
+  color: var(--text-muted);
+  margin-bottom: 7px;
+}
+
+.stacked-bar-row .stacked-label .stacked-n {
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+
+.stacked-bar {
+  display: flex;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* flex-grow proportional to count with flex-basis 0, plus a pixel min-width, so a small
+   but nonzero segment (e.g. 1 of 50) still renders as a visible sliver instead of
+   collapsing to zero width, the layout-bug pattern PLAN.md explicitly calls out. A
+   segment with a genuinely zero count is omitted entirely (not rendered), which is
+   correct, not a bug. min-width is 12px rather than 10px so the sliver is wide enough to
+   still show its own digit at the narrowest viewport; do not remove the safeguard. */
+.stacked-segment {
+  flex-basis: 0;
+  min-width: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: 0.01em;
+  color: #fff;
+  overflow: hidden;
+  cursor: default;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  transition: opacity var(--dur) var(--ease);
+}
+
+/* Hairline between adjoining segments so two touching blocks stay legible as two. */
+.stacked-segment + .stacked-segment {
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.45),
+              inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+/* Hovering the bar dims the other segments, isolating the one under the cursor, whose
+   native title tooltip spells the count out. */
+.stacked-bar:hover .stacked-segment { opacity: 0.45; }
+.stacked-bar .stacked-segment:hover { opacity: 1; }
+
+.stacked-segment.tone-positive { background: var(--positive); }
+.stacked-segment.tone-negative { background: var(--negative); }
+.stacked-segment.tone-neutral { background: var(--accent); }
+
+/* Reads as the card's footer: a hairline rule, then the same micro-caps as every other
+   key/label on the page, so the legend carries less weight than the bars themselves. */
+.stacked-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--ls-caps-tight);
+  color: var(--text-muted);
+  margin-top: 2px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+/* Direct child only, so it does not also capture the swatch span inside it. */
+.stacked-legend > span { display: inline-flex; align-items: center; gap: 7px; }
+
+.legend-swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  display: inline-block;
+  flex: none;
+  box-shadow: inset 0 0 0 1px rgba(43, 36, 27, 0.14);
+}
+
 /* ---------- Footer ---------- */
 
 footer {
@@ -681,6 +911,9 @@ footer code {
   .confusion-wrap { gap: 24px; }
   table.confusion { width: 100%; }
   table.confusion th, table.confusion td { padding: 13px 16px; }
+  .bar-chart { padding: 16px 18px; }
+  .stacked-bar-group { padding: 18px 18px 16px; }
+  .bar-row { grid-template-columns: 78px minmax(0, 1fr) 96px; gap: 12px; }
 }
 
 @media (max-width: 640px) {
@@ -696,6 +929,22 @@ footer code {
   td.col-text, th.col-text { display: none; }
   .detail-grid { grid-template-columns: 1fr; }
   .table-controls input[type="search"] { min-width: 0; flex: 1 1 200px; }
+  h3.subhead { font-size: 16px; margin-top: 32px; padding-top: 22px; }
+  h3.subhead:first-of-type { margin-top: 24px; }
+  .bar-chart { padding: 14px; gap: 6px; }
+  .bar-row {
+    grid-template-columns: 62px minmax(0, 1fr) 88px;
+    gap: 10px;
+    padding: 4px 6px;
+    margin: 0 -6px;
+  }
+  .bar-row .bar-label-text { font-size: 10px; letter-spacing: 0.03em; }
+  .bar-track { height: 22px; }
+  .bar-value { font-size: 11.5px; }
+  .stacked-bar-group { padding: 16px 14px 14px; gap: 16px; }
+  .stacked-bar { height: 30px; }
+  .stacked-segment { font-size: 10px; }
+  .stacked-legend { gap: 6px 14px; font-size: 10px; padding-top: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -776,16 +1025,43 @@ footer code {
     </div>
   </section>
 
+  <section id="descriptive-section">
+    <h2>Three-class balanced results</h2>
+    <p class="section-note">A separate run (Steps 5 and 6): the answer key redefined to
+      three classes (POSITIVE, NEUTRAL, NEGATIVE), scored on a fixed-seed sample of
+      ~50 reviews per class drawn from the whole dataset, not just the first 100. Numbers
+      below are computed live from the embedded balanced-run records, separate from the
+      binary results above.</p>
+
+    <h3 class="subhead">Star-rating distribution, full dataset</h3>
+    <p class="section-note">How skewed the underlying data actually is, across all
+      reviews, not just the sampled batches above.</p>
+    <div class="bar-chart" id="rating-distribution-chart"></div>
+
+    <h3 class="subhead">Correct answer vs. model prediction, per class</h3>
+    <p class="section-note">For each actual class (by rating), how the model's
+      predictions broke down. The balanced confusion matrix, as stacked bars.</p>
+    <div class="stacked-bar-group" id="prediction-breakdown-chart"></div>
+
+    <h3 class="subhead">Per-class "answered right" rate</h3>
+    <p class="section-note">The point of this step: made visible at a glance, without
+      drilling into a table.</p>
+    <div class="bar-chart" id="per-class-accuracy-chart"></div>
+  </section>
+
   <footer>
     <p>Data: Amazon Reviews '23 (Gift Cards category), McAuley Lab, UC San Diego.
       <a href="https://amazon-reviews-2023.github.io" target="_blank" rel="noopener">amazon-reviews-2023.github.io</a>.
       Numbers on this page are computed in the browser from the review records embedded
-      in this file, generated from <code>output/step2_results.json</code>.</p>
+      in this file, generated from <code>output/step2_results.json</code> and
+      <code>output/step6_balanced_results.json</code>.</p>
   </footer>
 </div>
 
 <script id="review-data" type="application/json">__REVIEW_DATA_JSON__</script>
 <script id="meta-data" type="application/json">__META_DATA_JSON__</script>
+<script id="balanced-data" type="application/json">__BALANCED_DATA_JSON__</script>
+<script id="rating-distribution-data" type="application/json">__RATING_DISTRIBUTION_JSON__</script>
 <script>
 (function () {
   "use strict";
@@ -813,6 +1089,8 @@ footer code {
 
   var records = JSON.parse(document.getElementById("review-data").textContent);
   var meta = JSON.parse(document.getElementById("meta-data").textContent);
+  var balancedRecords = JSON.parse(document.getElementById("balanced-data").textContent);
+  var ratingDistribution = JSON.parse(document.getElementById("rating-distribution-data").textContent);
 
   document.getElementById("meta-model").textContent = meta.model;
   document.getElementById("meta-temp").textContent = String(meta.temperature);
@@ -1040,6 +1318,130 @@ footer code {
   });
 
   renderTable("", "all");
+
+  // ---------- Step 7: descriptive/prediction charts ----------
+  // Every number below is computed here, in the browser, from the embedded
+  // balancedRecords/ratingDistribution data, never precomputed in Python and typed in.
+
+  var THREE_CLASSES = ["POSITIVE", "NEUTRAL", "NEGATIVE"];
+  var TONE_CLASS = { POSITIVE: "tone-positive", NEUTRAL: "tone-neutral", NEGATIVE: "tone-negative" };
+
+  function renderBarChart(containerId, rows) {
+    // rows: [{label, value, max, tone, valueText}]
+    var container = document.getElementById(containerId);
+    container.innerHTML = "";
+    rows.forEach(function (row) {
+      var pct = row.max > 0 ? Math.max(0, Math.min(100, (row.value / row.max) * 100)) : 0;
+      var rowEl = document.createElement("div");
+      rowEl.className = "bar-row";
+
+      var labelEl = document.createElement("div");
+      labelEl.className = "bar-label-text";
+      labelEl.textContent = row.label;
+      rowEl.appendChild(labelEl);
+
+      var trackEl = document.createElement("div");
+      trackEl.className = "bar-track";
+      var fillEl = document.createElement("div");
+      fillEl.className = "bar-fill " + (TONE_CLASS[row.tone] || "tone-neutral");
+      fillEl.style.width = pct + "%";
+      trackEl.appendChild(fillEl);
+      rowEl.appendChild(trackEl);
+
+      var valueEl = document.createElement("div");
+      valueEl.className = "bar-value";
+      valueEl.textContent = row.valueText;
+      rowEl.appendChild(valueEl);
+
+      container.appendChild(rowEl);
+    });
+  }
+
+  // 1. Star-rating distribution, full dataset.
+  var counts = ratingDistribution.counts_by_rating;
+  var maxRatingCount = Math.max.apply(null, ["5.0", "4.0", "3.0", "2.0", "1.0"].map(function (k) { return counts[k] || 0; }));
+  var ratingRows = ["5.0", "4.0", "3.0", "2.0", "1.0"].map(function (k) {
+    var n = counts[k] || 0;
+    var pct = ratingDistribution.total_reviews ? (n / ratingDistribution.total_reviews * 100) : 0;
+    var stars = k.replace(".0", "");
+    var tone = k === "3.0" ? "NEUTRAL" : (parseFloat(k) >= 4 ? "POSITIVE" : "NEGATIVE");
+    return {
+      label: stars + " star" + (stars === "1" ? "" : "s"),
+      value: n,
+      max: maxRatingCount,
+      tone: tone,
+      valueText: n.toLocaleString() + " (" + pct.toFixed(1) + "%)",
+    };
+  });
+  renderBarChart("rating-distribution-chart", ratingRows);
+
+  // 2. Correct vs predicted per class, and 3. per-class accuracy: both computed from the
+  // same embedded balancedRecords array.
+  var balancedValid = balancedRecords.filter(function (r) {
+    return r.answer_key_status === "ok" && r.parsed_status === "ok";
+  });
+
+  var predictionBreakdownEl = document.getElementById("prediction-breakdown-chart");
+  predictionBreakdownEl.innerHTML = "";
+
+  var accuracyRows = [];
+
+  THREE_CLASSES.forEach(function (actualClass) {
+    var classRows = balancedValid.filter(function (r) { return r.answer_key_label === actualClass; });
+    var n = classRows.length;
+    var nCorrect = classRows.filter(function (r) { return r.match; }).length;
+
+    accuracyRows.push({
+      label: actualClass,
+      value: nCorrect,
+      max: n || 1,
+      tone: actualClass,
+      valueText: n ? (nCorrect + "/" + n + " (" + (nCorrect / n * 100).toFixed(0) + "%)") : "n/a",
+    });
+
+    var rowWrap = document.createElement("div");
+    rowWrap.className = "stacked-bar-row";
+
+    var labelEl = document.createElement("div");
+    labelEl.className = "stacked-label";
+    labelEl.textContent = "Actually " + actualClass + " ";
+    var nSpan = document.createElement("span");
+    nSpan.className = "stacked-n";
+    nSpan.textContent = "(n=" + n + ")";
+    labelEl.appendChild(nSpan);
+    rowWrap.appendChild(labelEl);
+
+    var barEl = document.createElement("div");
+    barEl.className = "stacked-bar";
+    THREE_CLASSES.forEach(function (predictedClass) {
+      var predictedCount = classRows.filter(function (r) { return r.parsed_label === predictedClass; }).length;
+      if (predictedCount === 0) return; // a genuinely zero segment is correctly omitted, not a layout bug
+      var seg = document.createElement("div");
+      seg.className = "stacked-segment " + TONE_CLASS[predictedClass];
+      seg.style.flexGrow = predictedCount;
+      seg.textContent = predictedCount;
+      seg.title = predictedCount + " of " + n + " actually-" + actualClass + " reviews predicted " + predictedClass;
+      barEl.appendChild(seg);
+    });
+    rowWrap.appendChild(barEl);
+
+    predictionBreakdownEl.appendChild(rowWrap);
+  });
+
+  var legend = document.createElement("div");
+  legend.className = "stacked-legend";
+  THREE_CLASSES.forEach(function (cls) {
+    var span = document.createElement("span");
+    var swatch = document.createElement("span");
+    swatch.className = "legend-swatch " + TONE_CLASS[cls];
+    swatch.style.background = "var(--" + (cls === "POSITIVE" ? "positive" : cls === "NEGATIVE" ? "negative" : "accent") + ")";
+    span.appendChild(swatch);
+    span.appendChild(document.createTextNode("Predicted " + cls));
+    legend.appendChild(span);
+  });
+  predictionBreakdownEl.appendChild(legend);
+
+  renderBarChart("per-class-accuracy-chart", accuracyRows);
 })();
 </script>
 </body>
@@ -1052,23 +1454,42 @@ DEFAULT_META = {
     "temperature": 0,
 }
 
+DEFAULT_RATING_DISTRIBUTION = {
+    "total_reviews": 0,
+    "counts_by_rating": {"1.0": 0, "2.0": 0, "3.0": 0, "4.0": 0, "5.0": 0},
+}
 
-def render_dashboard(records, meta=None) -> str:
+
+def render_dashboard(records, meta=None, balanced_records=None, rating_distribution=None) -> str:
     """Render the dashboard HTML for a given list of review records. Used both by the
     normal generator (below) and by the Step 3 Red Team XSS test, which runs adversarial
-    records through this exact same function, the actual rendering pipeline."""
+    records through this exact same function, the actual rendering pipeline.
+
+    balanced_records/rating_distribution default to empty so existing callers (like the
+    XSS test) that only pass `records` keep working unchanged."""
     meta = meta or DEFAULT_META
+    balanced_records = balanced_records if balanced_records is not None else []
+    rating_distribution = rating_distribution or DEFAULT_RATING_DISTRIBUTION
+
     clean_records = sanitize_records_for_embedding(records)
+    clean_balanced_records = sanitize_records_for_embedding(balanced_records)
+
     html = HTML_TEMPLATE.replace("__REVIEW_DATA_JSON__", safe_json_for_script(clean_records))
     html = html.replace("__META_DATA_JSON__", safe_json_for_script(meta))
+    html = html.replace("__BALANCED_DATA_JSON__", safe_json_for_script(clean_balanced_records))
+    html = html.replace("__RATING_DISTRIBUTION_JSON__", safe_json_for_script(rating_distribution))
     return html
 
 
 def main():
     with open(RESULTS_PATH, "r", encoding="utf-8") as f:
         records = json.load(f)
+    with open(BALANCED_RESULTS_PATH, "r", encoding="utf-8") as f:
+        balanced_records = json.load(f)
+    with open(RATING_DISTRIBUTION_PATH, "r", encoding="utf-8") as f:
+        rating_distribution = json.load(f)
 
-    html = render_dashboard(records)
+    html = render_dashboard(records, balanced_records=balanced_records, rating_distribution=rating_distribution)
 
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     # errors="replace": found by the Step 3 Red Team pass, a strict utf-8 write crashes
@@ -1078,7 +1499,8 @@ def main():
     with open(OUTPUT_PATH, "w", encoding="utf-8", errors="replace") as f:
         f.write(html)
 
-    print(f"Dashboard written to {OUTPUT_PATH} ({len(html)} bytes), embedding {len(records)} review records.")
+    print(f"Dashboard written to {OUTPUT_PATH} ({len(html)} bytes), embedding {len(records)} review records "
+          f"and {len(balanced_records)} balanced records.")
 
 
 if __name__ == "__main__":

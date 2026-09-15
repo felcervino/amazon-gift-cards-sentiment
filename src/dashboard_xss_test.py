@@ -38,6 +38,12 @@ ADVERSARIAL_RECORD = {
 
 
 def main():
+    # Baseline: how many legitimate closing </script> tags the template has with no
+    # adversarial content at all. Computed dynamically (not hardcoded) so this test stays
+    # correct as the template gains or loses <script> blocks over time.
+    baseline_html = render_dashboard([])
+    n_baseline_script_tags = baseline_html.count("</script>")
+
     html = render_dashboard([ADVERSARIAL_RECORD])
 
     # Static check 1: the raw, unescaped <script> tag from the adversarial title must
@@ -46,14 +52,15 @@ def main():
         "FAIL: raw <script> tag from review title appears unescaped in generated HTML"
     )
 
-    # Static check 2: the page has exactly 3 legitimate closing </script> tags (the
-    # review-data block, the meta-data block, and the final logic block). If the
-    # adversarial text's embedded "</script>" string leaked through unescaped, it would
-    # add a 4th, and would also break the two data blocks apart from where they belong.
+    # Static check 2: adding the adversarial record must not change the count of closing
+    # </script> tags at all. If the adversarial text's embedded "</script>" string leaked
+    # through unescaped, it would add an extra one and also break a legitimate data block
+    # apart from where it belongs.
     n_closing_script_tags = html.count("</script>")
-    assert n_closing_script_tags == 3, (
-        f"FAIL: expected exactly 3 closing </script> tags, found {n_closing_script_tags}, "
-        "the adversarial text's embedded '</script>' string likely leaked through unescaped"
+    assert n_closing_script_tags == n_baseline_script_tags, (
+        f"FAIL: expected {n_baseline_script_tags} closing </script> tags (the template's "
+        f"own baseline with no adversarial content), found {n_closing_script_tags}, the "
+        "adversarial text's embedded '</script>' string likely leaked through unescaped"
     )
 
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)

@@ -511,5 +511,62 @@ balanced sample), matching the confirmed (corrected) ceiling exactly.
 **Step 6 QA gate: passed, go-ahead given.** Committed and pushed
 (`fb879fd`, "Step 6: three-class scoring, balanced vs imbalanced, QA and Red Team verified").
 
-**What's left for next session:** Step 7 (descriptive and prediction visualizations),
-lean mode with Builder/Frontend self-check, per PLAN.md Section 12.
+---
+
+## Session 7
+
+**Steps worked on:** Step 7 (descriptive and prediction visualizations).
+
+**Built:**
+- [src/compute_rating_distribution.py](src/compute_rating_distribution.py): scans the
+  full 152,410-row dataset once and saves the star-rating distribution to
+  [output/dataset_rating_distribution.json](output/dataset_rating_distribution.json), so
+  the "how skewed is the data" chart traces to a saved computation, not a typed-in number.
+- Extended [src/generate_dashboard.py](src/generate_dashboard.py) with a new "Three-class
+  balanced results" section, clearly labeled as a separate run from the binary Step 2-4
+  content above it: a star-rating distribution bar chart (full dataset), a stacked-bar
+  correct-vs-predicted breakdown per class, and a per-class accuracy chart. All three
+  computed client-side from newly embedded `balanced-data`
+  (`output/step6_balanced_results.json`) and `rating-distribution-data` JSON blocks, same
+  live-computation discipline as Steps 3/4. `render_dashboard()` and the XSS test updated
+  to match (the XSS test's expected-`</script>`-count check was rewritten to compute its
+  baseline dynamically from the template itself rather than a hardcoded number, so it
+  stays correct as the template grows).
+- Explicit `min-width` safeguards on bar/segment CSS (`.bar-fill`, `.stacked-segment`)
+  against the exact "zero-width bars from label/positioning interaction" failure mode
+  PLAN.md calls out: a genuinely small-but-nonzero count (e.g. 1 of 50) must still render
+  as a visible sliver, not collapse to invisible.
+
+**Self-check (Builder/Frontend, lean mode, self-verified, not independently
+verified):** confirmed every number in the new section against its source file via
+`get_page_text`/direct DOM queries in a live browser: rating distribution (128,248 /
+6,692 / 3,271 / 1,873 / 12,326 for 5/4/3/2/1 stars) matches
+`dataset_rating_distribution.json` exactly; prediction breakdown (POSITIVE 48/1/1,
+NEUTRAL 4/14/32, NEGATIVE 1/1/48) and per-class accuracy (96%/28%/96%) match
+`step6_balanced_results.json`'s confusion matrix exactly. Tested at 375px, 900px, and
+desktop widths: confirmed via direct DOM measurement (not just visual inspection) that
+every bar-fill and stacked-segment has nonzero rendered width even for the smallest real
+counts, no horizontal page overflow at any width, no console errors.
+
+**Opus 5 final polish pass:** run only after the functional self-check passed, per
+PLAN.md's sequencing, constrained to CSS-only changes on the new Step 7 chart classes.
+Brought the new section into the established card/shadow/typography language (it had
+been visually "bolted on" before) and, in the process, caught and fixed two real layout
+defects on its own: a fixed-width value column that wrapped large numbers onto multiple
+lines, and a subtler bug where each bar row's track independently auto-sized to its own
+label instead of sharing one common scale across the chart, made worse by the first fix.
+I independently re-verified after the pass rather than trusting the self-report: reran
+the full test suite (102/102) and the XSS check myself, and directly measured in a live
+browser at 375px that the min-width safeguards are still firing (segments floor at 12px,
+fills at 3px, no text clipping) and that all bar tracks in a chart now share the exact
+same width (was previously inconsistent, now confirmed fixed), with the descriptive
+section's numbers still matching their source files exactly after the change.
+
+**Classification-endpoint call count this session:** 0 (pure dashboard/visualization
+work over already-saved Step 6 output and a fresh scan of the existing local dataset
+file, no new model calls).
+
+**What's left for next session:** get go-ahead on the Step 7 QA gate, commit and push,
+then Step 8 (report/README.md and final deliverables), full mode with Verification Agent
+checking, plus Felipe's own non-delegable personal review and rewrite of the narrative,
+per PLAN.md Section 13.
